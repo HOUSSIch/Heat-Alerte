@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../**/*.vue";
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.heat-auth-page { background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 45%, #eff6ff 100%); }
+.heatalert-brand-logo { display: block; width: 150px; height: auto; border-radius: var(--tblr-border-radius); }
+.heatalert-auth-logo { display: block; width: 190px; height: auto; margin: 0 auto; }
+.heat-card { height: 100%; }
+.navbar-vertical .nav-link { color: rgba(255, 255, 255, .85) !important; }
+.navbar-vertical .nav-link:hover, .navbar-vertical .nav-item.active .nav-link { color: #fff !important; }
