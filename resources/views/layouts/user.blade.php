@@ -12,35 +12,36 @@
 
 <body>
 
-<div class="page">
+    <div class="page">
 
-    @include('partials.user-sidebar')
-
-
-    {{-- CONTENU PRINCIPAL --}}
-    <div class="page-wrapper">
-
-        @include('partials.user-navbar')
+        @include('partials.user-sidebar')
 
 
-        {{-- CONTENU DES PAGES --}}
-        <div class="page-body">
+        {{-- CONTENU PRINCIPAL --}}
+        <div class="page-wrapper">
 
-            <div class="container-xl">
+            @include('partials.user-navbar')
 
-                @yield('content')
+
+            {{-- CONTENU DES PAGES --}}
+            <div class="page-body">
+
+                <div class="container-xl">
+
+                    @yield('content')
+
+                </div>
 
             </div>
 
+
+            @include('partials.user-footer')
+
         </div>
-
-
-        @include('partials.user-footer')
 
     </div>
 
-</div>
-
+    <script>document.querySelectorAll('form').forEach((form) => form.setAttribute('novalidate', 'novalidate'));</script>
 </body>
 
 </html>

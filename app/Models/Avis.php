@@ -10,7 +10,13 @@ class Avis extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'point_fraicheur_id', 'note', 'commentaire', 'statut'];
+    protected $fillable = [
+        'user_id',
+        'point_fraicheur_id',
+        'note',
+        'commentaire',
+        'statut',
+    ];
 
     public function user(): BelongsTo
     {

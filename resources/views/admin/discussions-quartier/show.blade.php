@@ -1,0 +1,8 @@
+@extends('admin.layouts.gentelella')
+
+@section('title', 'Discussion du quartier')
+@section('page-title', 'Discussion du quartier')
+
+@section('content')
+    <div class="x_panel card"><div class="x_title card-header"><h2 class="card-title mb-0">{{ $publication->titre }}</h2><div class="clearfix"></div></div><div class="x_content card-body"><p><strong>Quartier :</strong> {{ $publication->quartier?->nom }} · <strong>Auteur :</strong> {{ $publication->user?->name }}</p><p>{{ $publication->contenu }}</p><p><strong>Confirmations :</strong> {{ $publication->confirmations_count }} · <strong>Commentaires :</strong> {{ $publication->commentaires_count }}</p><form class="d-flex gap-2 mb-4" method="POST" action="{{ route('admin.discussions-quartier.update', $publication) }}">@csrf @method('PUT')<label class="visually-hidden" for="statut">Statut</label><select id="statut" class="form-select" name="statut">@foreach(['signale'=>'Signalé','en_cours'=>'En cours','resolu'=>'Résolu'] as $value=>$label)<option value="{{ $value }}" @selected($publication->statut === $value)>{{ $label }}</option>@endforeach</select><button class="btn btn-primary">Mettre à jour</button></form><h3>Commentaires</h3>@forelse($publication->commentaires as $commentaire)<div class="well"><strong>{{ $commentaire->user?->name }}</strong> <span class="text-muted">{{ $commentaire->created_at->format('d/m/Y H:i') }}</span><p class="mb-0">{{ $commentaire->contenu }}</p></div>@empty<p>Aucun commentaire.</p>@endforelse<form method="POST" action="{{ route('admin.discussions-quartier.destroy', $publication) }}" onsubmit="return confirm('Supprimer cette discussion ?')">@csrf @method('DELETE')<button class="btn btn-danger">Supprimer la discussion</button></form></div></div>
+@endsection

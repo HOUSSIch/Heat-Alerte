@@ -29,6 +29,7 @@ return [
     ],
     'gemini' => ['key' => env('GEMINI_API_KEY'), 'model' => env('GEMINI_MODEL', 'gemini-2.5-flash')],
     'geoapify' => ['key' => env('GEOAPIFY_API_KEY')],
+    'groq' => ['key' => env('GROQ_API_KEY'), 'model' => env('GROQ_MODEL', 'openai/gpt-oss-20b')],
 
     'slack' => [
         'notifications' => [

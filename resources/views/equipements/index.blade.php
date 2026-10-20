@@ -1,21 +1,71 @@
-@extends('layouts.user')
+@extends('layouts.front')
 
 @section('title', 'Mes équipements - HeatAlert')
 
 @section('content')
-    <div class="page-header d-print-none"><div class="row align-items-center"><div class="col"><div class="page-pretitle">Espace habitant</div><h2 class="page-title">Mes équipements</h2><div class="text-secondary mt-1">Gérez les appareils sensibles à la chaleur ou aux coupures électriques.</div></div><div class="col-auto ms-auto d-print-none"><a href="{{ route('equipements.create') }}" class="btn btn-orange">Ajouter un équipement</a></div></div></div>
+    @include('partials.front-page-title', ['title' => 'Mes équipements', 'subtitle' => 'Protégez les appareils importants de votre foyer.'])
 
-    @if (session('success'))<div class="alert alert-success" role="alert">{{ session('success') }}</div>@endif
+    <section class="blog-posts section">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5" data-aos="fade-up">
+            <div class="section-title text-start p-0 m-0">
+                <h2>Mes appareils</h2>
+                <p>Suivez leurs sensibilités aux risques.</p>
+            </div>
+            <a href="{{ route('equipements.create') }}" class="btn-main"><i class="bi bi-plus-lg"></i> Ajouter un équipement</a>
+        </div>
 
-    <div class="card">
-        @if ($equipements->isEmpty())
-            <div class="empty"><div class="empty-img"><span class="avatar avatar-xl bg-orange-lt text-orange">@include('partials.tabler-icon', ['name' => 'devices', 'class' => 'icon icon-1'])</span></div><p class="empty-title">Aucun équipement enregistré</p><p class="empty-subtitle text-secondary">Ajoutez vos appareils importants pour mieux anticiper les risques de chaleur et de coupure.</p><div class="empty-action"><a href="{{ route('equipements.create') }}" class="btn btn-orange">Ajouter mon premier équipement</a></div></div>
-        @else
-            <div class="table-responsive"><table class="table table-vcenter card-table"><thead><tr><th>Nom</th><th>Type</th><th>Marque</th><th>Chaleur</th><th>Coupure</th><th class="w-1">Actions</th></tr></thead><tbody>
-                @foreach ($equipements as $equipement)
-                    <tr><td><a class="text-reset fw-bold" href="{{ route('equipements.show', $equipement) }}">{{ $equipement->nom }}</a></td><td>{{ $equipement->type }}</td><td>{{ $equipement->marque ?: '—' }}</td><td><span class="badge {{ $equipement->sensible_chaleur ? 'bg-orange-lt text-orange' : 'bg-secondary-lt text-secondary' }}">{{ $equipement->sensible_chaleur ? 'Oui' : 'Non' }}</span></td><td><span class="badge {{ $equipement->sensible_coupure ? 'bg-red-lt text-red' : 'bg-secondary-lt text-secondary' }}">{{ $equipement->sensible_coupure ? 'Oui' : 'Non' }}</span></td><td><div class="btn-list flex-nowrap"><a class="btn btn-sm btn-ghost-primary" href="{{ route('equipements.show', $equipement) }}">Voir</a><a class="btn btn-sm btn-ghost-secondary" href="{{ route('equipements.edit', $equipement) }}">Modifier</a><form action="{{ route('equipements.destroy', $equipement) }}" method="POST" onsubmit="return confirm('Supprimer cet équipement ?')">@csrf @method('DELETE')<button class="btn btn-sm btn-ghost-danger" type="submit">Supprimer</button></form></div></td></tr>
-                @endforeach
-            </tbody></table></div>
-        @endif
-    </div>
+        <div class="container">
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            <div class="row gy-4">
+                @forelse ($equipements as $equipement)
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                        <article class="heatalert-card">
+                            @if ($equipement->photo)
+                                <img class="equipment-card-photo" src="{{ asset('storage/' . $equipement->photo) }}" alt="{{ $equipement->nom }}">
+                            @else
+                                <div class="d-flex align-items-start justify-content-between">
+                                    <i class="bi bi-cpu heatalert-icon"></i>
+                                    <span class="post-category">{{ $equipement->type }}</span>
+                                </div>
+                            @endif
+                            <div class="d-flex justify-content-between align-items-start gap-3 mt-3">
+                                <h2 class="title m-0">{{ $equipement->nom }}</h2>
+                                @if ($equipement->photo)
+                                    <span class="post-category">{{ $equipement->type }}</span>
+                                @endif
+                            </div>
+                            <p>{{ $equipement->marque ?: 'Marque non renseignée' }}</p>
+                            <p>{{ $equipement->description ?: 'Aucune description.' }}</p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge text-bg-{{ $equipement->sensible_chaleur ? 'warning' : 'secondary' }}">Chaleur : {{ $equipement->sensible_chaleur ? 'sensible' : 'non' }}</span>
+                                <span class="badge text-bg-{{ $equipement->sensible_coupure ? 'danger' : 'secondary' }}">Coupure : {{ $equipement->sensible_coupure ? 'sensible' : 'non' }}</span>
+                            </div>
+                            <div class="equipment-actions mt-4">
+                                <a class="equipment-action equipment-action-view" href="{{ route('equipements.show', $equipement) }}"><i class="bi bi-eye"></i><span>Voir la fiche</span></a>
+                                <button class="equipment-action equipment-action-view" type="button" data-bs-toggle="modal" data-bs-target="#qr-modal-{{ $equipement->id }}"><i class="bi bi-qr-code"></i><span>QR Code</span></button>
+                                <a class="equipment-action equipment-action-edit" href="{{ route('equipements.edit', $equipement) }}"><i class="bi bi-pencil"></i><span>Modifier</span></a>
+                                <form action="{{ route('equipements.destroy', $equipement) }}" method="POST" onsubmit="return confirm('Supprimer cet équipement ?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="equipment-action equipment-action-delete" type="submit"><i class="bi bi-trash"></i><span>Supprimer</span></button>
+                                </form>
+                            </div>
+                        </article>
+                    @include('partials.equipement-qr-modal', ['equipement' => $equipement])
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <div class="heatalert-panel text-center">
+                            <i class="bi bi-cpu heatalert-icon mb-3"></i>
+                            <h3>Aucun équipement enregistré</h3>
+                            <p>Ajoutez vos appareils importants pour anticiper les risques.</p>
+                            <a href="{{ route('equipements.create') }}" class="btn-main">Ajouter mon premier équipement</a>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
 @endsection

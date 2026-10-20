@@ -2,8 +2,10 @@
     <div class="container-xl">
         <div class="navbar-nav flex-row order-md-last ms-auto">
             <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Menu du profil">
-                    <span class="avatar avatar-sm rounded-circle bg-orange-lt text-orange">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+                    aria-label="Menu du profil">
+                    <span
+                        class="avatar avatar-sm rounded-circle bg-orange-lt text-orange">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ auth()->user()->name }}</div>
                         <div class="mt-1 small text-secondary text-capitalize">{{ auth()->user()->role }}</div>
@@ -15,10 +17,15 @@
                     <div class="dropdown-divider"></div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="dropdown-item text-danger">@include('partials.tabler-icon', ['name' => 'logout', 'class' => 'icon icon-2 me-2']) Déconnexion</button>
+                        <button type="submit" class="dropdown-item text-danger">@include('partials.tabler-icon', [
+                            'name' => 'logout',
+                            'class' => 'icon icon-2 me-2',
+                        ])
+                            Déconnexion</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </header>
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr

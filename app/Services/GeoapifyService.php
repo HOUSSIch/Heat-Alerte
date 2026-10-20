@@ -33,7 +33,7 @@ class GeoapifyService
                 ]);
 
                 if (! $response->successful() || ! is_array($response->json())) {
-                    throw new RuntimeException();
+                    throw new RuntimeException;
                 }
 
                 return collect(data_get($response->json(), 'features', []))

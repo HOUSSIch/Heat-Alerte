@@ -2,71 +2,112 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quartier;
+use App\Notifications\AccountSecurityNotification;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use App\Models\Quartier;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\View\View;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class ProfileController extends Controller
 {
-    // READ : afficher le profil
-    public function show()
+    public function show(Request $request): View
     {
-        $user = request()->user();
-
-        return view('user.profile.show', compact('user'));
+        return view('user.profile.show', ['user' => $request->user()]);
     }
 
-    // Afficher le formulaire de modification
-    public function edit()
+    public function edit(Request $request): View
     {
-        $user = request()->user();
-
-        $quartiers = Quartier::where('actif', true)->orderBy('ville')->orderBy('nom')->get();
-        return view('user.profile.edit', compact('user','quartiers'));
+        return view('user.profile.edit', [
+            'user' => $request->user(),
+            'quartiers' => Quartier::where('actif', true)->orderBy('ville')->orderBy('nom')->get(),
+        ]);
     }
 
-    // UPDATE : modifier le profil
-    public function update(Request $request)
+    /**
+     * Update the user's profile information.
+     */
+    public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
-
+        $passwordChanged = ! empty($request->input('password'));
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['bail', 'required', 'string', 'min:2', 'max:120'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user)],
-            'password' => 'nullable|min:6|confirmed',
-            'quartier_id' => 'nullable|exists:quartiers,id',
+            'current_password' => ['required_with:password', 'current_password'],
+            'password' => ['nullable', 'confirmed', Password::min(8)],
+            'quartier_id' => ['nullable', 'exists:quartiers,id'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->quartier_id = $validated['quartier_id'] ?? null;
+        $user->fill([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'quartier_id' => $validated['quartier_id'] ?? null,
+        ]);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
 
         if (! empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
+            $user->password = $validated['password'];
+        }
+
+        if ($request->hasFile('profile_photo')) {
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            $user->profile_photo_path = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
         $user->save();
 
-        return redirect()
-            ->route('profile.show')
-            ->with('success', 'Profil modifié avec succès.');
+        if ($user->wasChanged('email') && ! $user->hasVerifiedEmail()) {
+            try {
+                $user->sendEmailVerificationNotification();
+            } catch (TransportExceptionInterface) {
+                return redirect()->route('verification.notice')
+                    ->with('error', 'Votre adresse e-mail a été modifiée, mais le lien de vérification n’a pas pu être envoyé. Vérifiez la configuration SMTP, puis renvoyez le lien.');
+            }
+        }
+
+        if ($passwordChanged) {
+            $user->notify(AccountSecurityNotification::passwordChanged());
+        }
+
+        return redirect()->route('profile.show')->with('success', 'Profil modifié avec succès.');
     }
 
-    // DELETE : supprimer le compte
-    public function destroy(Request $request)
+    /**
+     * Delete the user's account.
+     */
+    public function destroy(Request $request): RedirectResponse
     {
+        $request->validate(['password' => ['required', 'current_password']]);
         $user = $request->user();
 
         Auth::logout();
 
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
+        $user->forceFill([
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => null,
+        ])->save();
         $user->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/register')
-            ->with('success', 'Votre compte a été supprimé.');
+        return redirect()->route('register')->with('success', 'Compte supprimé avec succès.');
     }
 }

@@ -1,0 +1,93 @@
+:root {
+  --accent-color: #ef6421;
+  --nav-dropdown-hover-color: #ef6421;
+}
+
+.header .logo img {
+  max-height: 38px;
+  margin-right: 10px;
+}
+
+.front-logout {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--nav-dropdown-color);
+  padding: 10px 20px;
+  text-align: left;
+}
+
+.front-logout:hover {
+  color: var(--nav-dropdown-hover-color);
+}
+
+.heatalert-notice {
+  border-left: 4px solid #ef6421;
+}
+
+/* Ajustements ciblés aux contenus métier, avec les composants Nova comme base. */
+.page-title {
+  padding: 135px 0 48px;
+}
+
+.page-title p {
+  margin: 0 auto;
+  max-width: 720px;
+}
+
+.heatalert-panel {
+  background: var(--surface-color);
+  box-shadow: 0 8px 28px rgba(27, 47, 69, 0.08);
+  padding: 32px;
+}
+
+.heatalert-icon {
+  align-items: center;
+  background: color-mix(in srgb, var(--accent-color), transparent 88%);
+  border-radius: 50%;
+  color: var(--accent-color);
+  display: inline-flex;
+  font-size: 28px;
+  height: 58px;
+  justify-content: center;
+  width: 58px;
+}
+
+.heatalert-stat {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.heatalert-card {
+  background: var(--surface-color);
+  box-shadow: 0 6px 24px rgba(27, 47, 69, 0.08);
+  height: 100%;
+  padding: 28px;
+}
+
+.heatalert-card .post-img {
+  margin: -28px -28px 22px;
+}
+
+.heatalert-card .post-img img {
+  height: 190px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.heatalert-chat {
+  background: color-mix(in srgb, var(--background-color), var(--surface-color) 65%);
+  min-height: 380px;
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    padding: 110px 0 38px;
+  }
+
+  .heatalert-panel,
+  .heatalert-card {
+    padding: 22px;
+  }
+}

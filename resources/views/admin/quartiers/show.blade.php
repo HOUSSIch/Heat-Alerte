@@ -1,1 +1,18 @@
-@extends('layouts.admin') @section('title',$quartier->nom) @section('page-title','Quartier') @section('content')<div class="card card-primary card-outline"><div class="card-header"><h3 class="card-title">{{ $quartier->nom }} — {{ $quartier->ville }}</h3></div><div class="card-body"><p>Coordonnées : {{ $quartier->latitude }}, {{ $quartier->longitude }}</p><p>Statut : <span class="badge {{ $quartier->actif?'text-bg-success':'text-bg-secondary' }}">{{ $quartier->actif?'Actif':'Inactif' }}</span></p></div><div class="card-footer"><a class="btn btn-primary" href="{{ route('admin.quartiers.edit',$quartier) }}">Modifier</a><form class="d-inline" method="POST" action="{{ route('admin.quartiers.generate',$quartier) }}">@csrf<button class="btn btn-warning">Actualiser météo / générer alerte</button></form><form class="d-inline float-end" method="POST" action="{{ route('admin.quartiers.destroy',$quartier) }}">@csrf @method('DELETE')<button class="btn btn-danger">Supprimer</button></form></div></div>@endsection
+@extends('admin.layouts.gentelella') @section('title', $quartier->nom) @section('page-title', 'Quartier') @section('content')<div
+    class="card card">
+    <div class="card-header">
+        <h3 class="card-title">{{ $quartier->nom }} — {{ $quartier->ville }}</h3>
+    </div>
+    <div class="card-body">
+        <p>Coordonnées : {{ $quartier->latitude }}, {{ $quartier->longitude }}</p>
+        <p>Statut : <span
+                class="badge {{ $quartier->actif ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $quartier->actif ? 'Actif' : 'Inactif' }}</span>
+        </p>
+    </div>
+    <div class="card-footer"><a class="btn btn-primary" href="{{ route('admin.quartiers.edit', $quartier) }}">Modifier</a>
+        <form class="d-inline" method="POST" action="{{ route('admin.quartiers.generate', $quartier) }}">@csrf<button
+                class="btn btn-warning">Actualiser météo / générer alerte</button></form>
+        <form class="d-inline float-end" method="POST" action="{{ route('admin.quartiers.destroy', $quartier) }}" onsubmit="return confirm('Supprimer ce quartier ? Les données liées peuvent être affectées.');">@csrf
+            @method('DELETE')<button class="btn btn-danger">Supprimer</button></form>
+    </div>
+</div>@endsection
