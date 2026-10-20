@@ -49,7 +49,7 @@ class PointFraicheurController extends Controller
             $rows = $rows->where('level', $request->input('niveau'))->values();
         }
 
-return view('admin.points-fraicheur.coverage', compact('rows'));
+        return view('admin.points-fraicheur.coverage', compact('rows'));
     }
 
     public function analyseAvis(PointFraicheur $pointFraicheur, GroqAiService $groq)
