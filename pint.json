@@ -1,0 +1,10 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "public",
+        "storage",
+        "template-gentelella-original",
+        "template-nova-original",
+        "template-workfolio-original"
+    ]
+}

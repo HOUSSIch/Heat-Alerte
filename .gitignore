@@ -21,3 +21,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/coverage.xml
+/phpstan-baseline.neon
+/storage/backups/
+/template-gentelella-original/
+/template-nova-original/
+/template-workfolio-original/
