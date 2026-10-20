@@ -110,7 +110,6 @@ jobs:
     name: SonarQube Cloud Quality Gate
     needs: verify
     runs-on: ubuntu-latest
-    if: ${{ secrets.SONAR_TOKEN != '' && vars.SONAR_PROJECT_KEY != '' && vars.SONAR_ORGANIZATION != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -122,7 +121,22 @@ jobs:
         with:
           name: coverage-clover
 
+      - name: Check SonarQube Cloud configuration
+        id: sonar-config
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ] || [ -z "$SONAR_PROJECT_KEY" ] || [ -z "$SONAR_ORGANIZATION" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SonarQube Cloud is not configured; analysis is skipped."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Analyse SonarQube Cloud and wait for the Quality Gate
+        if: steps.sonar-config.outputs.configured == 'true'
         uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
