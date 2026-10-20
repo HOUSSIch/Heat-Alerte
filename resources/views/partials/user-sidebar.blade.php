@@ -3,18 +3,12 @@
 
         {{-- LOGO --}}
         <h1 class="navbar-brand navbar-brand-autodark py-3">
-            <a href="{{ route('dashboard') }}"
-               class="d-flex align-items-center gap-2 text-decoration-none">
+            <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
 
-                <img
-                    src="{{ asset('images/heatalert-logo-transparent.png') }}"
-                    class="heatalert-brand-logo"
-                    alt="HeatAlert"
-                >
+                <img src="{{ asset('images/heatalert-logo-final.png') }}" class="heatalert-brand-logo"
+                    alt="HeatAlert">
 
-                <span class="text-white fw-bold">
-                    HeatAlert
-                </span>
+                <span class="text-white fw-bold"></span>
             </a>
         </h1>
 
@@ -26,8 +20,7 @@
 
                 {{-- Dashboard --}}
                 <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <a class="nav-link"
-                       href="{{ route('dashboard') }}">
+                    <a class="nav-link" href="{{ route('dashboard') }}">
 
                         <span class="nav-link-icon">
                             @include('partials.tabler-icon', ['name' => 'dashboard'])
@@ -95,12 +88,22 @@
                     </a>
                 </li>
 
+                <li class="nav-item {{ request()->routeIs('etablissements-sensibles.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('etablissements-sensibles.index') }}">
+                        <span class="nav-link-icon">
+                            @include('partials.tabler-icon', ['name' => 'building'])
+                        </span>
+                        <span class="nav-link-title">
+                            Structures d’assistance
+                        </span>
+                    </a>
+                </li>
+
 
                 {{-- Equipements --}}
                 <li class="nav-item {{ request()->routeIs('equipements.*') ? 'active' : '' }}">
 
-                    <a class="nav-link"
-                       href="{{ route('equipements.index') }}">
+                    <a class="nav-link" href="{{ route('equipements.index') }}">
 
                         <span class="nav-link-icon">
                             @include('partials.tabler-icon', ['name' => 'devices'])
@@ -117,8 +120,7 @@
                 {{-- Conseils --}}
                 <li class="nav-item {{ request()->routeIs('conseils.*') ? 'active' : '' }}">
 
-                    <a class="nav-link"
-                       href="{{ route('conseils.mes') }}">
+                    <a class="nav-link" href="{{ route('conseils.mes') }}">
 
                         <span class="nav-link-icon">
                             @include('partials.tabler-icon', ['name' => 'bulb'])
@@ -152,8 +154,7 @@
                 {{-- Profil --}}
                 <li class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
 
-                    <a class="nav-link"
-                       href="{{ route('profile.show') }}">
+                    <a class="nav-link" href="{{ route('profile.show') }}">
 
                         <span class="nav-link-icon">
                             @include('partials.tabler-icon', ['name' => 'user'])

@@ -1,1 +1,1 @@
-@extends('layouts.admin') @section('title','Créer quartier') @section('content')@include('admin.quartiers.form')@endsection
+@extends('admin.layouts.gentelella') @section('title', 'Créer quartier') @section('content')@include('admin.quartiers.form')@endsection

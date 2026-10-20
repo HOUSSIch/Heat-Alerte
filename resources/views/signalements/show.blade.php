@@ -1,5 +1,64 @@
-@extends('layouts.user')
-@section('title','Détail signalement')
+@extends('layouts.front')
+
+@section('title', 'Détail signalement')
+
 @section('content')
-<div class="page-header"><div class="page-pretitle">Mes signalements</div><h2 class="page-title">{{ $signalement->titre }}</h2></div><div class="row row-cards"><div class="col-lg-8"><div class="card"><div class="card-header"><h3 class="card-title">Informations du signalement</h3></div><div class="card-body"><p>{{ $signalement->description }}</p><dl class="row mb-0"><dt class="col-sm-4">Quartier</dt><dd class="col-sm-8">{{ $signalement->quartier->nom }}</dd><dt class="col-sm-4">Adresse</dt><dd class="col-sm-8">{{ $signalement->adresse ?: 'Non renseignée' }}</dd><dt class="col-sm-4">Date</dt><dd class="col-sm-8">{{ $signalement->date_signalement->format('d/m/Y H:i') }}</dd></dl></div></div></div><div class="col-lg-4"><div class="card"><div class="card-header"><h3 class="card-title">Statut</h3></div><div class="card-body"><span class="badge bg-yellow-lt text-yellow fs-5">{{ $signalement->statut }}</span><p class="text-secondary mt-3 mb-0">Coupure associée : {{ $signalement->coupureElectrique?->titre ?? 'Aucune' }}</p></div></div></div><div class="col-12"><div class="card"><div class="card-header"><h3 class="card-title">Localisation <span class="badge bg-blue-lt text-blue">Nominatim</span></h3></div><div class="card-body">@if($signalement->latitude && $signalement->longitude)<p class="text-secondary">Latitude {{ $signalement->latitude }} · Longitude {{ $signalement->longitude }}</p><div id="map" style="height:320px" class="rounded"></div><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>const map=L.map('map').setView([{{ $signalement->latitude }},{{ $signalement->longitude }}],15);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);L.marker([{{ $signalement->latitude }},{{ $signalement->longitude }}]).addTo(map);</script>@else<div class="alert alert-warning mb-0">Cette adresse n'a pas pu être localisée.</div>@endif</div></div></div></div>
+    @include('partials.front-page-title', ['title' => 'Détail du signalement', 'subtitle' => $signalement->titre])
+
+    <section id="service-details" class="service-details section">
+        <div class="container" data-aos="fade-up">
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <aside class="sidebar">
+                        <div class="services-list">
+                            <h4>Statut</h4>
+                            <ul>
+                                <li class="active"><a href="#">{{ str_replace('_', ' ', ucfirst($signalement->statut)) }} <i class="bi bi-exclamation-triangle"></i></a></li>
+                                <li><a href="#">Coupure : {{ $signalement->coupureElectrique?->titre ?? 'Aucune associée' }}</a></li>
+                            </ul>
+                        </div>
+                        <div class="help-card">
+                            <i class="bi bi-arrow-left"></i>
+                            <h4>Actions</h4>
+                            <p>Retrouvez l’ensemble de vos signalements.</p>
+                            <a href="{{ route('signalements.index') }}" class="btn-main">Retour à mes signalements</a>
+                        </div>
+                    </aside>
+                </div>
+
+                <div class="col-lg-8">
+                    <article class="detail heatalert-detail-content">
+                        @if ($signalement->latitude && $signalement->longitude)
+                            <div id="signalement-map" class="heatalert-detail-map"></div>
+                        @endif
+
+                        <div class="heatalert-detail-heading">
+                            <h2>{{ $signalement->titre }}</h2>
+                            <p class="lead">{{ $signalement->description }}</p>
+                        </div>
+
+                        <h3>Informations</h3>
+                        <div class="row g-3 includes">
+                            <div class="col-md-6"><div class="inc"><i class="bi bi-check-circle-fill"></i> Quartier : {{ $signalement->quartier?->nom }}</div></div>
+                            <div class="col-md-6"><div class="inc"><i class="bi bi-check-circle-fill"></i> Adresse : {{ $signalement->adresse ?: 'Non renseignée' }}</div></div>
+                            <div class="col-md-6"><div class="inc"><i class="bi bi-check-circle-fill"></i> Date : {{ $signalement->date_signalement->format('d/m/Y H:i') }}</div></div>
+                            <div class="col-md-6"><div class="inc"><i class="bi bi-check-circle-fill"></i> Coupure associée : {{ $signalement->coupureElectrique?->titre ?? 'Aucune' }}</div></div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @if ($signalement->latitude && $signalement->longitude)
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script>
+            const signalementMap = L.map('signalement-map').setView([{{ $signalement->latitude }}, {{ $signalement->longitude }}], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+            }).addTo(signalementMap);
+            L.marker([{{ $signalement->latitude }}, {{ $signalement->longitude }}]).addTo(signalementMap);
+        </script>
+    @endif
 @endsection

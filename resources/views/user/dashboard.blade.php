@@ -1,206 +1,48 @@
-@extends('layouts.user')
+@extends('layouts.front')
 
-@section('title', 'Dashboard - HeatAlert')
+@section('title', 'HeatAlert — Prévention locale')
 
 @section('content')
-    @php
-        $temperatureLabel = $weather ? $weather['temperature'].'°C' : '—';
-        $niveauLive = $niveau ?? 'Indisponible';
-        $niveauColor = [
-            'Normal' => 'green',
-            'Vigilance' => 'yellow',
-            'Alerte' => 'orange',
-            'Danger' => 'red',
-        ][$niveauLive] ?? 'secondary';
-    @endphp
+    @php($temperatureLabel = $weather ? $weather['temperature'] . '°C' : '—')
+    <section id="hero" class="hero section"><div class="container"><div class="row align-items-center justify-content-center"><div class="col-lg-5 text-center text-lg-start" data-aos="fade-up"><span class="status"><span class="ping"></span> Informations locales en direct</span><h1>Anticipez la <span class="hl">chaleur</span>. Restez informé, restez protégé.</h1><p class="lead">HeatAlert vous aide à suivre les risques dans {{ $quartier?->nom ?? 'votre quartier' }} : météo, coupures et services utiles.</p><div class="actions"><a href="{{ route('meteo.index') }}" class="btn-main">Voir la météo</a><a href="{{ route('points-fraicheur.index') }}" class="btn-line">Points de fraîcheur <i class="bi bi-arrow-right"></i></a></div></div><div class="col-lg-7 text-center" data-aos="zoom-in" data-aos-delay="150"><div class="hero-workfolio-photo hero-heatalert-illustration"><img src="{{ asset('images/heatalert-hero.png') }}" alt="Illustration de vigilance chaleur HeatAlert" class="img-fluid"></div></div></div></div></section>
 
-    <div class="page-header">
-        <div class="page-pretitle">Espace habitant</div>
-        <h2 class="page-title">Bonjour, {{ auth()->user()->name }}</h2>
-        <div class="text-secondary">Situation HeatAlert de {{ $quartier?->nom ?? 'votre quartier' }}.</div>
-    </div>
+    <section id="about" class="about section light-background"><div class="container"><div class="row g-4 align-items-center"><div class="col-lg-5" data-aos="fade-up"><h2>Votre situation locale</h2><p>Des repères simples pour agir au bon moment et protéger les personnes comme les équipements.</p></div><div class="col-lg-7"><div class="row g-3 text-center"><div class="col-6 col-md-3"><div class="counter"><span data-purecounter-start="0" data-purecounter-end="{{ $weather ? $weather['temperature'] : 0 }}" data-purecounter-duration="1" class="purecounter"></span><p>Température actuelle</p></div></div><div class="col-6 col-md-3"><div class="counter"><span data-purecounter-start="0" data-purecounter-end="{{ $alertesActives->count() }}" data-purecounter-duration="1" class="purecounter"></span><p>alertes actives</p></div></div><div class="col-6 col-md-3"><div class="counter"><span data-purecounter-start="0" data-purecounter-end="{{ $coupuresActives }}" data-purecounter-duration="1" class="purecounter"></span><p>coupures actives</p></div></div><div class="col-6 col-md-3"><div class="counter"><span data-purecounter-start="0" data-purecounter-end="{{ $equipements->count() }}" data-purecounter-duration="1" class="purecounter"></span><p>{{ $equipements->count() }} équipement{{ $equipements->count() > 1 ? 's' : '' }} suivi{{ $equipements->count() > 1 ? 's' : '' }}</p></div></div></div></div></div></div></section>
 
-    <div class="row row-cards">
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="avatar bg-orange-lt text-orange">@include('partials.tabler-icon', ['name' => 'thermometer'])</span></div>
-                        <div class="col">
-                            <div class="text-secondary">Température actuelle</div>
-                            <div class="h1 mb-0">{{ $temperatureLabel }}</div>
-                            <div class="small text-secondary">Open-Meteo</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="avatar bg-{{ $niveauColor }}-lt text-{{ $niveauColor }}">@include('partials.tabler-icon', ['name' => 'alert'])</span></div>
-                        <div class="col">
-                            <div class="text-secondary">Alerte canicule</div>
-                            <div class="h2 mb-0">{{ $niveauLive }}</div>
-                            <div class="small text-secondary">{{ $weather ? 'Alerte canicule live' : 'Aucune donnée live' }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="avatar bg-yellow-lt text-yellow">@include('partials.tabler-icon', ['name' => 'bolt'])</span></div>
-                        <div class="col">
-                            <div class="text-secondary">Coupures actives</div>
-                            <div class="h1 mb-0">{{ $coupuresActives }}</div>
-                            <div class="small text-secondary">{{ $signalementsEnAttente }} signalement{{ $signalementsEnAttente > 1 ? 's' : '' }} en attente</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="avatar bg-blue-lt text-blue">@include('partials.tabler-icon', ['name' => 'devices'])</span></div>
-                        <div class="col">
-                            <div class="text-secondary">Mes équipements</div>
-                            <div class="h1 mb-0">{{ auth()->user()->equipements()->count() }}</div>
-                            <a class="small" href="{{ route('equipements.index') }}">Voir mes équipements</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row row-cards mt-1">
-        <div class="col-lg-8">
-            <div class="card h-100">
-                <div class="card-header">
+    @if ($rappelsEntretien->isNotEmpty())
+        <section class="section maintenance-dashboard-section">
+            <div class="container" data-aos="fade-up">
+                <div class="maintenance-dashboard-heading">
                     <div>
-                        <div class="card-title mb-0">Météo en direct <span class="badge bg-blue-lt text-blue ms-1">LIVE · Open-Meteo</span></div>
+                        <p class="profile-kicker">Suivi de vos équipements</p>
+                        <h2>Rappels d’entretien</h2>
                     </div>
-                    <div class="card-actions"><a class="btn btn-sm btn-outline-primary" href="{{ route('meteo.index') }}">Détail météo</a></div>
+                    <a class="btn-line" href="{{ route('equipements.index') }}">Mes équipements <i class="bi bi-arrow-right"></i></a>
                 </div>
-                <div class="card-body">
-                    @if ($weather && $quartier)
-                        <div class="row row-cards">
-                            <div class="col-sm-6 col-xl-3"><div class="text-secondary">Quartier</div><div class="fw-bold">{{ $quartier->nom }}</div><div class="small text-secondary">{{ $quartier->ville }}</div></div>
-                            <div class="col-sm-6 col-xl-3"><div class="text-secondary">Température actuelle</div><div class="h2 mb-0">{{ $weather['temperature'] }}°C</div></div>
-                            <div class="col-sm-6 col-xl-3"><div class="text-secondary">Minimum / Maximum</div><div class="fw-bold">{{ $weather['temperature_min'] }}° / {{ $weather['temperature_max'] }}°</div></div>
-                            <div class="col-sm-6 col-xl-3"><div class="text-secondary">Niveau live</div><span class="badge bg-{{ $niveauColor }}-lt text-{{ $niveauColor }}">{{ $niveauLive }}</span></div>
-                        </div>
-                        <div class="small text-secondary mt-3">Source : Open-Meteo · données météo en temps réel.</div>
-                    @else
-                        <div class="alert alert-info mb-0">Météo momentanément indisponible. Consultez le détail pour réessayer.</div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-header"><h3 class="card-title">Conseils du jour</h3></div>
-                <div class="list-group list-group-flush">
-                    @forelse ($conseils as $conseil)
-                        <div class="list-group-item">
-                            <span class="badge bg-blue-lt text-blue">{{ $conseil->niveau }}</span>
-                            <span class="ms-1">{{ $conseil->titre }}</span>
-                        </div>
-                    @empty
-                        <div class="list-group-item text-secondary">Aucun conseil personnalisé pour le moment.</div>
-                    @endforelse
-                </div>
-                <div class="card-footer"><a class="btn btn-outline-primary w-100" href="{{ route('conseils.mes') }}">Voir tous les conseils</a></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mt-3">
-        <div class="card-header">
-            <div>
-                <div class="card-title mb-0">Bulletins et alertes publiés</div>
-                <div class="text-secondary small">Informations publiées pour votre quartier.</div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row row-cards">
-                @forelse ($alertesActives as $alerte)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="alert alert-warning h-100 mb-0">
-                            <div class="d-flex align-items-start justify-content-between gap-2">
-                                <strong>{{ $alerte->titre }}</strong>
-                                <span class="badge bg-orange">{{ $alerte->niveau }}</span>
-                            </div>
-                            @if (! is_null($alerte->temperature))
-                                <div class="mt-2">Température annoncée : {{ $alerte->temperature }}°C</div>
-                            @endif
-                            @if (! is_null($alerte->temperature_min) || ! is_null($alerte->temperature_max))
-                                <div>Minimum / Maximum : {{ $alerte->temperature_min ?? '—' }}° / {{ $alerte->temperature_max ?? '—' }}°</div>
-                            @endif
-                            @if ($alerte->description)
-                                <div class="mt-2">{{ $alerte->description }}</div>
-                            @endif
-                            <div class="small text-secondary mt-3">
-                                Début : {{ $alerte->date_debut?->format('d/m/Y H:i') ?? 'non précisé' }}<br>
-                                Fin : {{ $alerte->date_fin?->format('d/m/Y H:i') ?? 'non précisée' }}<br>
-                                Source : {{ $alerte->source === 'manuel' ? 'Administration HeatAlert' : 'Open-Meteo' }}
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="col-12"><div class="alert alert-success mb-0">Aucune alerte ou bulletin actif pour votre quartier.</div></div>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    <div class="row row-cards mt-1">
-        <div class="col-lg-8">
-            <div class="card h-100">
-                <div class="card-header"><h3 class="card-title">Mes équipements sensibles</h3></div>
-                <div class="card-body">
-                    <div class="row row-cards">
-                        @forelse ($equipements as $equipement)
-                            <div class="col-md-4">
-                                <div class="card card-sm h-100">
-                                    <div class="card-body">
-                                        <div class="fw-bold">{{ $equipement->nom }}</div>
-                                        <div class="text-secondary small">{{ $equipement->type }}</div>
-                                        <div class="mt-2">
-                                            @if ($equipement->sensible_chaleur)<span class="badge bg-orange-lt text-orange">Chaleur</span>@endif
-                                            @if ($equipement->sensible_coupure)<span class="badge bg-red-lt text-red">Coupure</span>@endif
-                                        </div>
-                                    </div>
+                <div class="row g-3">
+                    @foreach ($rappelsEntretien as $rappel)
+                        <div class="col-lg-4">
+                            <a class="dashboard-maintenance-reminder dashboard-maintenance-reminder--{{ $rappel['entretien']->reminderStatus() }}" href="{{ route('equipements.show', $rappel['equipement']) }}">
+                                <i class="bi {{ $rappel['entretien']->reminderStatus() === 'overdue' ? 'bi-exclamation-triangle-fill' : 'bi-bell-fill' }}"></i>
+                                <div>
+                                    <span>{{ $rappel['entretien']->reminderTitle() }}</span>
+                                    <h3>{{ $rappel['equipement']->nom }}</h3>
+                                    <p>{{ $rappel['entretien']->titre }} · {{ $rappel['entretien']->reminderDescription() }}</p>
                                 </div>
-                            </div>
-                        @empty
-                            <div class="col-12"><div class="alert alert-info mb-0">Aucun équipement enregistré.</div></div>
-                        @endforelse
-                    </div>
+                            </a>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="card-footer"><a class="btn btn-outline-primary" href="{{ route('equipements.index') }}">Voir mes équipements</a></div>
             </div>
-        </div>
+        </section>
+    @endif
 
-        <div class="col-lg-4">
-            <div class="card h-100 bg-orange-lt">
-                <div class="card-body d-flex flex-column">
-                    <span class="avatar bg-orange text-white mb-3">@include('partials.tabler-icon', ['name' => 'message'])</span>
-                    <h3 class="card-title">Assistant HeatAlert</h3>
-                    <p class="text-secondary">Besoin d'aide pour vos équipements ou les fortes chaleurs ?</p>
-                    <div class="mt-auto"><a class="btn btn-orange w-100" href="{{ route('chatbot.index') }}">Ouvrir l'assistant</a></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <section id="services" class="services section"><div class="container section-title" data-aos="fade-up"><h2>Les services HeatAlert</h2><p>Les informations essentielles, réunies au même endroit.</p></div><div class="container"><div class="row g-0 service-rows">
+        @foreach ([['01','Météo et alertes','Suivez les températures et les bulletins de votre quartier.',route('meteo.index')],['02','Coupures électriques','Consultez et signalez les interruptions locales.',route('coupures.index')],['03','Points de fraîcheur','Repérez les lieux pour vous rafraîchir.',route('points-fraicheur.index')],['04','Structures d’assistance','Trouvez les contacts et services de proximité.',route('etablissements-sensibles.index')],['05','Assistant HeatAlert','Obtenez une réponse pratique immédiatement.',route('chatbot.index')]] as [$number,$title,$description,$url])
+            <div class="col-12" data-aos="fade-up"><a href="{{ $url }}" class="row-item"><span class="n">{{ $number }}</span><div class="body"><h3>{{ $title }}</h3><p>{{ $description }}</p></div><i class="bi bi-arrow-up-right"></i></a></div>
+        @endforeach
+    </div></div></section>
+
+    <section id="process" class="process section light-background"><div class="container section-title" data-aos="fade-up"><h2>Que faire en cas de forte chaleur ?</h2><p>Une démarche simple, inspirée de la section Process Workfolio.</p></div><div class="container"><div class="row g-4 steps"><div class="col-lg-3 col-md-6" data-aos="fade-up"><div class="step"><span class="num">01</span><i class="bi bi-cloud-sun"></i><h3>Consultez l’alerte</h3><p>Vérifiez la météo et le niveau de vigilance.</p></div></div><div class="col-lg-3 col-md-6" data-aos="fade-up"><div class="step"><span class="num">02</span><i class="bi bi-cup-straw"></i><h3>Hydratez-vous</h3><p>Adoptez les bons gestes de prévention.</p></div></div><div class="col-lg-3 col-md-6" data-aos="fade-up"><div class="step"><span class="num">03</span><i class="bi bi-geo-alt"></i><h3>Localisez un lieu frais</h3><p>Trouvez un point de fraîcheur à proximité.</p></div></div><div class="col-lg-3 col-md-6" data-aos="fade-up"><div class="step"><span class="num">04</span><i class="bi bi-chat-dots"></i><h3>Demandez de l’aide</h3><p>L’assistant vous oriente si nécessaire.</p></div></div></div></div></section>
+
+    <section id="cta" class="cta section dark-background"><div class="container" data-aos="zoom-in"><div class="row justify-content-center text-center"><div class="col-lg-8"><div class="cta-center"><span class="kicker">HeatAlert vous accompagne</span><h2>Besoin d’aide ?</h2><p>Posez votre question à Assistant HeatAlert pour recevoir une réponse adaptée.</p><a href="{{ route('chatbot.index') }}" class="btn-main">Ouvrir l’assistant <i class="bi bi-arrow-right"></i></a></div></div></div></div></section>
 @endsection

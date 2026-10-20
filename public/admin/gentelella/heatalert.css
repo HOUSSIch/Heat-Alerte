@@ -1,0 +1,69 @@
+/* Adaptation minimale pour brancher les contenus Laravel sur les composants natifs Gentelella. */
+.heatalert-brand-logo { width: 34px; height: 34px; object-fit: contain; }
+.sidebar-brand { gap: 10px; }
+.sidebar-brand .brand-name { line-height: 1.1; }
+.sidebar-brand small { display: block; font-size: 10px; font-weight: 400; opacity: .7; margin-top: 2px; }
+.topbar form { margin: 0; }
+.topbar .tb-btn { background: transparent; border: 0; cursor: pointer; font: inherit; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-right form { display: flex; }
+.topbar-right .tb-btn { align-items: center; border: 1px solid transparent; border-radius: 6px; color: var(--text-secondary); display: inline-flex; font-size: 13px; font-weight: 500; gap: 7px; height: 34px; justify-content: center; padding: 0 11px; text-decoration: none; width: auto; }
+.topbar-right .tb-btn:hover { background: var(--bg-surface-secondary); border-color: var(--border-color); color: var(--text); text-decoration: none; }
+.topbar-right .tb-btn .icon { height: 16px; width: 16px; }
+.topbar-right form .tb-btn { color: var(--red); }
+.topbar-right form .tb-btn:hover { background: var(--red-lt); border-color: color-mix(in srgb, var(--red), transparent 70%); color: var(--red); }
+.page-wrapper .row { display: grid; gap: 16px; margin-bottom: 16px; }
+.page-wrapper .row > [class*="col-"] { min-width: 0; }
+.page-wrapper .card { margin-bottom: 16px; }
+.page-wrapper .card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.page-wrapper .card-title { font-weight: 600; }
+.page-wrapper .card-tools { display: flex; gap: 8px; }
+.page-wrapper .card-body { padding: 16px; }
+.page-wrapper .table-responsive { overflow-x: auto; }
+.page-wrapper .table { width: 100%; border-collapse: collapse; }
+.page-wrapper .table th, .page-wrapper .table td { padding: 12px 14px; border-bottom: 1px solid var(--border-color-light); text-align: left; vertical-align: middle; }
+.page-wrapper .table thead th { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.page-wrapper .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; padding: 8px 12px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text); font-size: 13px; font-weight: 500; text-decoration: none; cursor: pointer; }
+.page-wrapper .btn-primary, .page-wrapper .btn-success { background: var(--primary); border-color: var(--primary); color: #fff; }
+.page-wrapper .btn-danger { background: var(--red); border-color: var(--red); color: #fff; }
+.page-wrapper .btn-warning { background: var(--yellow); border-color: var(--yellow); color: #222; }
+.page-wrapper .btn-outline-primary { color: var(--primary); border-color: var(--primary); }
+.page-wrapper .btn-outline-danger { color: var(--red); border-color: var(--red); }
+.page-wrapper .btn-sm { padding: 5px 9px; font-size: 12px; }
+.page-wrapper .card-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.page-wrapper .card-footer form { margin: 0; }
+.page-wrapper .card-footer .float-end { margin-left: auto; }
+.page-wrapper .form-control, .page-wrapper .form-select { display: block; width: 100%; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text); border-radius: 6px; padding: 9px 11px; font: inherit; }
+.page-wrapper label { display: inline-block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.page-wrapper .form-group, .page-wrapper .mb-3 { margin-bottom: 16px; }
+.page-wrapper .invalid-feedback { color: var(--red); font-size: 12px; margin-top: 5px; }
+.page-wrapper .is-invalid { border-color: var(--red); }
+.page-wrapper .alert { border-radius: 7px; padding: 13px 16px; margin-bottom: 16px; border: 1px solid; }
+.page-wrapper .alert-success { color: #126a55; background: var(--green-lt); border-color: #b7e5d8; }
+.page-wrapper .alert-danger { color: #b42318; background: var(--red-lt); border-color: #f8c4c0; }
+.page-wrapper .badge { display: inline-flex; padding: 3px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.page-wrapper .text-bg-success { color: #0d6b55; background: var(--green-lt); }.page-wrapper .text-bg-danger { color: #b42318; background: var(--red-lt); }.page-wrapper .text-bg-warning { color: #915800; background: var(--yellow-lt); }.page-wrapper .text-bg-primary,.page-wrapper .text-bg-info { color: #155a99; background: var(--blue-lt); }.page-wrapper .text-bg-secondary { color: var(--text-secondary); background: var(--bg-surface-secondary); }
+.page-wrapper .d-flex { display: flex; }.page-wrapper .justify-content-between { justify-content: space-between; }.page-wrapper .align-items-center { align-items: center; }.page-wrapper .gap-2 { gap: 8px; }.page-wrapper .gap-3 { gap: 16px; }.page-wrapper .flex-grow-1 { flex-grow: 1; }.page-wrapper .w-100 { width: 100%; }
+.page-wrapper .text-secondary { color: var(--text-secondary); }.page-wrapper .text-danger { color: var(--red); }.page-wrapper .text-center { text-align: center; }.page-wrapper .small { font-size: 12px; }.page-wrapper .fw-semibold { font-weight: 600; }.page-wrapper .text-decoration-none { text-decoration: none; }.page-wrapper .text-reset { color: inherit; }
+.page-wrapper .list-group { margin: 0; padding: 0; list-style: none; }.page-wrapper .list-group-item { padding: 12px 16px; border-bottom: 1px solid var(--border-color-light); }.page-wrapper .list-group-item:last-child { border-bottom: 0; }
+.admin-filter-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.admin-filter-actions { align-items: end; display: flex; gap: 8px; }
+.status-maintenance-à_jour, .status-maintenance-réalisé { background: var(--green-lt); color: #126a55; }
+.status-maintenance-prévu { background: var(--blue-lt); color: #155a99; }
+.status-maintenance-en_retard { background: var(--red-lt); color: #b42318; }
+.status-maintenance-aucun_entretien { background: var(--bg-surface-secondary); color: var(--text-secondary); }
+.status-maintenance-normal { background: var(--green-lt); color: #126a55; }
+.status-maintenance-vigilance, .status-maintenance-alerte { background: var(--yellow-lt); color: #915800; }
+.status-maintenance-critique { background: var(--red-lt); color: #b42318; }
+.admin-detail-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+.admin-detail-grid dl { display: grid; gap: 7px 16px; grid-template-columns: minmax(130px, .45fr) 1fr; margin: 0; }
+.admin-detail-grid dt { color: var(--text-secondary); font-weight: 500; }.admin-detail-grid dd { margin: 0; }
+.admin-equipment-photo { border-radius: 8px; max-height: 220px; max-width: 100%; object-fit: cover; }
+.admin-chat-history { display: grid; gap: 12px; max-height: 520px; overflow-y: auto; }
+.admin-chat-message { border-radius: 8px; max-width: 88%; padding: 12px 14px; }
+.admin-chat-message strong { display: block; font-size: 12px; margin-bottom: 5px; }.admin-chat-message p { margin: 0; white-space: pre-wrap; }
+.admin-chat-message--user { background: var(--blue-lt); margin-left: auto; }.admin-chat-message--assistant { background: var(--bg-surface-secondary); }
+.admin-chat-actions { margin-top: 12px; }
+@media (max-width: 575px) { .page-wrapper .card-footer .float-end { margin-left: 0; } .topbar-right .tb-btn { padding: 0 8px; } .topbar-right .tb-btn span { display: none; } }
+@media (min-width: 768px) { .page-wrapper .row { grid-template-columns: repeat(2, minmax(0, 1fr)); }.page-wrapper .col-lg-8 { grid-column: span 2; } }
+@media (min-width: 1200px) { .page-wrapper .col-xl-3 { grid-column: span 1; }.page-wrapper .row:has(.col-xl-3) { grid-template-columns: repeat(4, minmax(0, 1fr)); }.page-wrapper .row:has(.col-lg-8) { grid-template-columns: 2fr 1fr; }.page-wrapper .col-lg-8 { grid-column: auto; } }

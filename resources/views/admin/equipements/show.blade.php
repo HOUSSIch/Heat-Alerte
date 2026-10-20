@@ -1,5 +1,27 @@
-@extends('layouts.admin')
-@section('title', $equipement->nom) @section('page-title','Détail équipement') @section('breadcrumb')<li class="breadcrumb-item"><a href="{{ route('admin.equipements.index') }}">Équipements</a></li><li class="breadcrumb-item active">{{ $equipement->nom }}</li>@endsection
+@extends('admin.layouts.gentelella')
+
+@section('title', $equipement->nom)
+
+@section('page-title', 'Détail équipement')
+
 @section('content')
-<div class="row"><div class="col-lg-7"><div class="card card-warning card-outline shadow-sm"><div class="card-header"><h3 class="card-title">{{ $equipement->nom }}</h3></div><div class="card-body"><dl class="row mb-0"><dt class="col-sm-4">Type</dt><dd class="col-sm-8">{{ $equipement->type }}</dd><dt class="col-sm-4">Marque</dt><dd class="col-sm-8">{{ $equipement->marque ?: 'Non renseignée' }}</dd><dt class="col-sm-4">Sensibilité chaleur</dt><dd class="col-sm-8">{{ $equipement->sensible_chaleur ? 'Oui' : 'Non' }}</dd><dt class="col-sm-4">Sensibilité coupure</dt><dd class="col-sm-8">{{ $equipement->sensible_coupure ? 'Oui' : 'Non' }}</dd><dt class="col-sm-4">Description</dt><dd class="col-sm-8">{{ $equipement->description ?: 'Aucune description.' }}</dd></dl></div><div class="card-footer"><a class="btn btn-default" href="{{ route('admin.equipements.index') }}">Retour à la liste</a></div></div></div><div class="col-lg-5"><div class="card shadow-sm"><div class="card-header"><h3 class="card-title">Propriétaire</h3></div><div class="card-body"><strong>{{ $equipement->user?->name ?? 'Utilisateur supprimé' }}</strong><br><span class="text-secondary">{{ $equipement->user?->email }}</span></div></div><div class="card shadow-sm"><div class="card-header"><h3 class="card-title">Conseils associés</h3></div><ul class="list-group list-group-flush">@forelse($equipement->conseils as $conseil)<li class="list-group-item"><strong>{{ $conseil->titre }}</strong><br><small class="text-secondary">{{ $conseil->categorie }} · {{ $conseil->niveau }}</small></li>@empty<li class="list-group-item text-secondary">Aucun conseil associé.</li>@endforelse</ul></div></div></div>
+    @php($status = $equipement->maintenanceStatus())
+    <div class="row col-8-4">
+        <div class="card">
+            <div class="card-header"><div><div class="card-title">EQ-{{ str_pad((string) $equipement->id, 4, '0', STR_PAD_LEFT) }} — {{ $equipement->nom }}</div><div class="card-subtitle">Consultation administrative en lecture seule.</div></div><span class="status status-maintenance-{{ $status }}">{{ str_replace('_', ' ', ucfirst($status)) }}</span></div>
+            <div class="card-body admin-detail-grid">
+                @if ($equipement->photo)<img class="admin-equipment-photo" src="{{ asset('storage/'.$equipement->photo) }}" alt="{{ $equipement->nom }}">@endif
+                <dl><dt>Type</dt><dd>{{ $equipement->type }}</dd><dt>Marque</dt><dd>{{ $equipement->marque ?: 'Non renseignée' }}</dd><dt>Description</dt><dd>{{ $equipement->description ?: 'Aucune description.' }}</dd><dt>Sensible à la chaleur</dt><dd>{{ $equipement->sensible_chaleur ? 'Oui' : 'Non' }}</dd><dt>Sensible aux coupures</dt><dd>{{ $equipement->sensible_coupure ? 'Oui' : 'Non' }}</dd><dt>Entretiens</dt><dd>{{ $equipement->entretiens->count() }}</dd></dl>
+            </div>
+            <div class="card-footer"><a class="btn" href="{{ route('admin.equipements.index') }}">Retour à la liste</a></div>
+        </div>
+        <div>
+            <div class="card"><div class="card-header"><div class="card-title">Propriétaire</div></div><div class="card-body"><strong>{{ $equipement->user?->name ?? 'Utilisateur supprimé' }}</strong><div class="text-secondary">{{ $equipement->user?->email }}</div></div></div>
+            <div class="card"><div class="card-header"><div class="card-title">Suivi entretien</div></div><div class="card-body"><div class="version-row"><span>Dernier entretien</span><strong>{{ $equipement->lastMaintenance()?->date_realisee?->format('d/m/Y') ?? '—' }}</strong></div><div class="version-row"><span>Prochain entretien</span><strong>{{ $equipement->nextMaintenance()?->date_prevue?->format('d/m/Y') ?? '—' }}</strong></div></div></div>
+        </div>
+    </div>
+    <div class="row col-8-4">
+        <div class="card"><div class="card-header"><div><div class="card-title">Historique des entretiens</div><div class="card-subtitle">Aucune action de modification n’est disponible côté administration.</div></div></div><div class="table-responsive"><table class="table"><thead><tr><th>Titre</th><th>Type</th><th>Prévu</th><th>Réalisé</th><th>Rappel</th><th>Statut</th></tr></thead><tbody>@forelse ($equipement->entretiens as $entretien)<tr><td>{{ $entretien->titre }}</td><td>{{ $entretien->type }}</td><td>{{ $entretien->date_prevue->format('d/m/Y') }}</td><td>{{ $entretien->date_realisee?->format('d/m/Y') ?? '—' }}</td><td>{{ $entretien->rappel_avant_jours ?? '—' }} jour(s)</td><td><span class="status status-maintenance-{{ $entretien->date_realisee ? 'réalisé' : ($entretien->reminderStatus() === 'overdue' ? 'en_retard' : 'prévu') }}">{{ $entretien->date_realisee ? 'Réalisé' : ($entretien->reminderStatus() === 'overdue' ? 'En retard' : 'Prévu') }}</span></td></tr>@empty<tr><td colspan="6" class="text-center text-secondary">Aucun entretien.</td></tr>@endforelse</tbody></table></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Conseils associés</div></div><ul class="list-group">@forelse($equipement->conseils as $conseil)<li class="list-group-item"><strong>{{ $conseil->titre }}</strong><div class="small text-secondary">{{ $conseil->categorie }} · {{ $conseil->niveau }}</div></li>@empty<li class="list-group-item text-secondary">Aucun conseil associé.</li>@endforelse</ul></div>
+    </div>
 @endsection

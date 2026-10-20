@@ -3,31 +3,59 @@
 @section('title', 'Inscription')
 
 @section('content')
+    <section class="auth-card">
+        <h1 class="auth-title">Créer votre compte habitant</h1>
+        <p class="auth-subtitle">Restez informé et protégé face aux risques de chaleur.</p>
 
-<div class="card card-md">
-    <div class="card-body">
-    <h2 class="h2 text-center mb-4">Créer votre compte habitant</h2>
+        @if ($errors->any())
+            <div class="auth-alert auth-alert--danger" role="alert">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
 
-    @if ($errors->any())
-        <div class="alert alert-danger" role="alert"><ul class="mb-0 ps-3">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
-    @endif
+        <form method="POST" action="{{ route('register') }}">
+            @csrf
+            <div class="auth-form-group">
+                <label class="auth-label" for="name">Nom complet</label>
+                <input class="auth-input @error('name') is-invalid @enderror" id="name" type="text" name="name"
+                    value="{{ old('name') }}" required autofocus autocomplete="name">
+                @error('name')
+                    <div class="auth-error">{{ $message }}</div>
+                @enderror
+            </div>
 
-    <form action="{{ route('register') }}" method="POST">
-        @csrf
+            <div class="auth-form-group">
+                <label class="auth-label" for="email">Adresse e-mail</label>
+                <input class="auth-input @error('email') is-invalid @enderror" id="email" type="email" name="email"
+                    value="{{ old('email') }}" required autocomplete="username">
+                @error('email')
+                    <div class="auth-error">{{ $message }}</div>
+                @enderror
+            </div>
 
-        <div class="mb-3"><label class="form-label" for="name">Nom complet</label><input class="form-control @error('name') is-invalid @enderror" id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name">@error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
+            <div class="auth-form-group">
+                <label class="auth-label" for="password">Mot de passe</label>
+                <input class="auth-input @error('password') is-invalid @enderror" id="password" type="password"
+                    name="password" required autocomplete="new-password">
+                @error('password')
+                    <div class="auth-error">{{ $message }}</div>
+                @enderror
+            </div>
 
-        <div class="mb-3"><label class="form-label" for="email">Adresse e-mail</label><input class="form-control @error('email') is-invalid @enderror" id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email">@error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
+            <div class="auth-form-group">
+                <label class="auth-label" for="password_confirmation">Confirmer le mot de passe</label>
+                <input class="auth-input @error('password_confirmation') is-invalid @enderror" id="password_confirmation"
+                    type="password" name="password_confirmation" required autocomplete="new-password">
+                @error('password_confirmation')
+                    <div class="auth-error">{{ $message }}</div>
+                @enderror
+            </div>
 
-        <div class="mb-3"><label class="form-label" for="password">Mot de passe</label><input class="form-control @error('password') is-invalid @enderror" id="password" type="password" name="password" required autocomplete="new-password">@error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
+            <button class="auth-submit" type="submit">Créer mon compte</button>
+        </form>
 
-        <div class="mb-3"><label class="form-label" for="password_confirmation">Confirmer le mot de passe</label><input class="form-control" id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"></div>
-
-        <div class="form-footer"><button type="submit" class="btn btn-orange w-100">Créer mon compte</button></div>
-    </form>
-
-    </div>
-    <div class="card-body"><div class="text-center text-secondary">Déjà inscrit ? <a href="{{ route('login') }}">Se connecter</a></div></div>
-</div>
-
+        <p class="auth-footer">Déjà inscrit ? <a class="auth-link" href="{{ route('login') }}">Se connecter</a></p>
+    </section>
 @endsection
