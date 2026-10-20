@@ -1,3 +1,81 @@
 <?php
-namespace App\Http\Controllers;use App\Models\AlerteMeteo;use App\Models\Conseil;use App\Models\CoupureElectrique;use App\Services\OpenMeteoService;use App\Services\WeatherAlertService;use Illuminate\Http\Request;
-class DashboardController extends Controller{public function index(Request $r,OpenMeteoService $meteo,WeatherAlertService $levels){$u=$r->user();$quartier=$u->quartier;$weather=null;$niveau=null;if($quartier){try{$weather=$meteo->weather($quartier);$niveau=$levels->niveau($weather['temperature']);}catch(\RuntimeException){}}$alertesActives=$quartier?AlerteMeteo::where('quartier_id',$quartier->id)->where('actif',true)->where(fn($q)=>$q->whereNull('date_debut')->orWhere('date_debut','<=',now()))->where(fn($q)=>$q->whereNull('date_fin')->orWhere('date_fin','>=',now()))->latest()->get():collect();return view('user.dashboard',['quartier'=>$quartier,'weather'=>$weather,'niveau'=>$niveau,'alerte'=>$alertesActives->first(),'alertesActives'=>$alertesActives,'coupuresActives'=>$quartier?CoupureElectrique::where('quartier_id',$quartier->id)->where('actif',true)->whereIn('statut',['prévue','en_cours'])->count():0,'signalementsEnAttente'=>$u->signalements()->where('statut','en_attente')->count(),'equipements'=>$u->equipements()->latest()->take(3)->get(),'conseils'=>Conseil::where('actif',true)->whereHas('equipements',fn($q)=>$q->where('user_id',$u->id))->distinct()->take(3)->get()]);}}
+
+namespace App\Http\Controllers;
+
+use App\Models\AlerteMeteo;
+use App\Models\Conseil;
+use App\Models\CoupureElectrique;
+use App\Models\EntretienEquipement;
+use App\Models\Equipement;
+use App\Services\OpenMeteoService;
+use App\Services\WeatherAlertService;
+use Illuminate\Http\Request;
+
+class DashboardController extends Controller
+{
+    public function index(Request $r, OpenMeteoService $meteo, WeatherAlertService $levels)
+    {
+        $u = $r->user();
+        $quartier = $u->quartier;
+        $weather = null;
+        $niveau = null;
+
+        if ($quartier) {
+            try {
+                $weather = $meteo->weather($quartier);
+                $niveau = $levels->niveau($weather['temperature']);
+            } catch (\RuntimeException) {
+            }
+        }
+
+        $alertesActives = $quartier
+            ? AlerteMeteo::where('quartier_id', $quartier->id)
+                ->where('actif', true)
+                ->where(fn ($q) => $q->whereNull('date_debut')->orWhere('date_debut', '<=', now()))
+                ->where(fn ($q) => $q->whereNull('date_fin')->orWhere('date_fin', '>=', now()))
+                ->latest()
+                ->get()
+            : collect();
+
+        $rappelsEntretien = $u->equipements()
+            ->with('entretiens')
+            ->get()
+            ->flatMap(function (Equipement $equipement) {
+                return $equipement->entretiens
+                    ->filter(fn (EntretienEquipement $entretien) => $entretien->shouldShowReminder())
+                    ->map(fn (EntretienEquipement $entretien) => [
+                        'equipement' => $equipement,
+                        'entretien' => $entretien,
+                    ]);
+            })
+            ->sortBy(fn (array $rappel) => sprintf(
+                '%02d-%010d',
+                $rappel['entretien']->reminderPriority(),
+                $rappel['entretien']->date_prevue->timestamp,
+            ))
+            ->take(3)
+            ->values();
+
+        return view('user.dashboard', [
+            'quartier' => $quartier,
+            'weather' => $weather,
+            'niveau' => $niveau,
+            'alerte' => $alertesActives->first(),
+            'alertesActives' => $alertesActives,
+            'coupuresActives' => $quartier
+                ? CoupureElectrique::where('quartier_id', $quartier->id)
+                    ->where('actif', true)
+                    ->whereIn('statut', ['prévue', 'en_cours'])
+                    ->count()
+                : 0,
+            'signalementsEnAttente' => $u->signalements()->where('statut', 'en_attente')->count(),
+            'equipements' => $u->equipements()->latest()->take(3)->get(),
+            'conseils' => Conseil::where('actif', true)
+                ->whereHas('equipements', fn ($q) => $q->where('user_id', $u->id))
+                ->distinct()
+                ->take(3)
+                ->get(),
+            'rappelsEntretien' => $rappelsEntretien,
+        ]);
+    }
+}

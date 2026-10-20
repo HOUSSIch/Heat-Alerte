@@ -1,3 +1,68 @@
 <?php
-namespace App\Models; use Illuminate\Database\Eloquent\Model; use Illuminate\Database\Eloquent\Relations\HasMany;
-class Quartier extends Model { protected $fillable=['nom','ville','code_postal','latitude','longitude','actif']; protected function casts():array{return ['actif'=>'boolean'];} public function alertesMeteo():HasMany{return $this->hasMany(AlerteMeteo::class);} public function users():HasMany{return $this->hasMany(User::class);} public function coupuresElectriques():HasMany{return $this->hasMany(CoupureElectrique::class);} public function signalements():HasMany{return $this->hasMany(Signalement::class);} public function pointsFraicheur():HasMany{return $this->hasMany(PointFraicheur::class);} }
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Quartier extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'nom',
+        'ville',
+        'code_postal',
+        'latitude',
+        'longitude',
+        'actif',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'actif' => 'boolean',
+        ];
+    }
+
+    public function alertesMeteo(): HasMany
+    {
+        return $this->hasMany(AlerteMeteo::class);
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function coupures(): HasMany
+    {
+        return $this->hasMany(CoupureElectrique::class);
+    }
+
+    public function coupuresElectriques(): HasMany
+    {
+        return $this->coupures();
+    }
+
+    public function signalements(): HasMany
+    {
+        return $this->hasMany(Signalement::class);
+    }
+
+    public function pointsFraicheur(): HasMany
+    {
+        return $this->hasMany(PointFraicheur::class);
+    }
+
+    public function etablissementsSensibles(): HasMany
+    {
+        return $this->hasMany(EtablissementSensible::class);
+    }
+
+    public function publicationsQuartier(): HasMany
+    {
+        return $this->hasMany(PublicationQuartier::class);
+    }
+}

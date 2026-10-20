@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PointFraicheur;
 use App\Models\Quartier;
 use App\Services\GeoapifyService;
+use App\Services\GroqAiService;
+use App\Services\PointCoverageService;
 use Illuminate\Http\Request;
 use RuntimeException;
 
@@ -21,7 +23,7 @@ class PointFraicheurController extends Controller
     public function create()
     {
         return view('admin.points-fraicheur.create', [
-            'pointFraicheur' => new PointFraicheur(),
+            'pointFraicheur' => new PointFraicheur,
             'quartiers' => Quartier::where('actif', true)->orderBy('ville')->orderBy('nom')->get(),
         ]);
     }
@@ -38,6 +40,27 @@ class PointFraicheurController extends Controller
         return view('admin.points-fraicheur.show', [
             'pointFraicheur' => $pointFraicheur->load('quartier')->loadCount('avis'),
         ]);
+    }
+
+    public function coverage(Request $request, PointCoverageService $coverage)
+    {
+        $rows = Quartier::orderBy('nom')->get()->map(fn ($q) => ['quartier' => $q] + $coverage->analyse($q));
+        if ($request->filled('niveau')) {
+            $rows = $rows->where('level', $request->input('niveau'))->values();
+        }
+
+return view('admin.points-fraicheur.coverage', compact('rows'));
+    }
+
+    public function analyseAvis(PointFraicheur $pointFraicheur, GroqAiService $groq)
+    {
+        try {
+            $analysis = $groq->analyse($pointFraicheur->id, $pointFraicheur->avis()->where('statut', 'publie')->latest()->get());
+
+            return back()->with('avis_analysis', $analysis);
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function edit(PointFraicheur $pointFraicheur)
@@ -122,12 +145,12 @@ class PointFraicheurController extends Controller
     {
         $data = $request->validate([
             'quartier_id' => ['required', 'exists:quartiers,id'],
-            'nom' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'max:100'],
-            'adresse' => ['required', 'string', 'max:255'],
+            'nom' => ['bail', 'required', 'string', 'min:2', 'max:150'],
+            'type' => ['bail', 'required', 'string', 'min:2', 'max:100'],
+            'adresse' => ['bail', 'required', 'string', 'min:3', 'max:255'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:5000'],
             'horaires' => ['nullable', 'string', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:50'],
             'climatise' => ['nullable', 'boolean'],

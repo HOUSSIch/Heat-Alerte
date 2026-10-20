@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAvisRequest;
 use App\Models\Avis;
 use App\Models\PointFraicheur;
+use App\Services\PointCoverageService;
 use Illuminate\Http\Request;
 
 class PointFraicheurController extends Controller
@@ -44,7 +46,18 @@ class PointFraicheurController extends Controller
         return view('points-fraicheur.show', compact('pointFraicheur', 'avisPublies', 'monAvis'));
     }
 
-    public function storeAvis(Request $request, PointFraicheur $pointFraicheur)
+    public function compare(Request $request, PointCoverageService $coverage)
+    {
+        $data = $request->validate(['points' => ['required', 'array', 'min:2', 'max:3'], 'points.*' => ['integer']]);
+        $points = $this->pointsQuery($request->user()->quartier_id)->whereIn('id', $data['points'])->get();
+        abort_unless($points->count() === count(array_unique($data['points'])), 404);
+        $quartier = $request->user()->quartier;
+        $comparisons = $points->map(fn ($p) => ['point' => $p, 'distance' => $coverage->distance((float) $quartier->latitude, (float) $quartier->longitude, (float) $p->latitude, (float) $p->longitude)]);
+
+        return view('points-fraicheur.compare', compact('comparisons'));
+    }
+
+    public function storeAvis(StoreAvisRequest $request, PointFraicheur $pointFraicheur)
     {
         $this->ensureVisibleTo($request, $pointFraicheur);
 
@@ -61,7 +74,7 @@ class PointFraicheurController extends Controller
         return back()->with('success', 'Votre avis a été envoyé et attend la validation de l’administration.');
     }
 
-    public function updateAvis(Request $request, PointFraicheur $pointFraicheur, Avis $avis)
+    public function updateAvis(StoreAvisRequest $request, PointFraicheur $pointFraicheur, Avis $avis)
     {
         $this->ensureVisibleTo($request, $pointFraicheur);
         abort_unless($avis->user_id === $request->user()->id && $avis->point_fraicheur_id === $pointFraicheur->id, 403);
@@ -95,11 +108,8 @@ class PointFraicheurController extends Controller
         abort_unless($pointFraicheur->actif && $request->user()->quartier_id === $pointFraicheur->quartier_id, 404);
     }
 
-    private function avisData(Request $request): array
+    private function avisData(StoreAvisRequest $request): array
     {
-        return $request->validate([
-            'note' => ['required', 'integer', 'min:1', 'max:5'],
-            'commentaire' => ['nullable', 'string', 'max:1000'],
-        ]);
+        return $request->validated();
     }
 }
