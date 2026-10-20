@@ -193,7 +193,8 @@ PROMPT;
             throw new \RuntimeException($unavailableMessage);
         }
 
-        $json = trim(preg_replace('/^(?:\x60{3}(?:json)?\s*)|(?:\s*\x60{3})$/', '', trim($content)) ?? '');
+        $json = preg_replace('/^\x60{3}(?:json)?\s*/', '', trim($content)) ?? '';
+        $json = trim(preg_replace('/\s*\x60{3}$/', '', $json) ?? '');
         $start = strpos($json, '{');
         $end = strrpos($json, '}');
 

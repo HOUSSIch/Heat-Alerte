@@ -11,7 +11,8 @@ class HeatAlertAiService
     {
         $prompt = 'Extrais un signalement de coupure électrique. Réponds uniquement avec un JSON valide contenant titre, description, adresse (null si absente), quartier (null si absent). N’invente jamais une adresse. Texte : '.$text;
         $answer = $this->ask($prompt);
-        $json = preg_replace('/^(?:```(?:json)?)|(?:```$)/m', '', trim($answer));
+        $json = preg_replace('/^```(?:json)?/', '', trim($answer)) ?? '';
+        $json = preg_replace('/```$/', '', $json) ?? '';
         $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
 
         if (! is_array($data) || ! is_string($data['titre'] ?? null) || ! is_string($data['description'] ?? null)) {
