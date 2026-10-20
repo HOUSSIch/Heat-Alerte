@@ -3,6 +3,14 @@
         <h3 class="card-title">Signalements</h3>
     </div>
     <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Titre</th>
+                <th scope="col">Habitant</th>
+                <th scope="col">Statut</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
         <tbody>
             @foreach ($signalements as $s)
                 <tr>

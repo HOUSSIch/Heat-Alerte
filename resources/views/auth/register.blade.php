@@ -20,7 +20,7 @@
             <div class="auth-form-group">
                 <label class="auth-label" for="name">Nom complet</label>
                 <input class="auth-input @error('name') is-invalid @enderror" id="name" type="text" name="name"
-                    value="{{ old('name') }}" required autofocus autocomplete="name">
+                    value="{{ old('name') }}" required autocomplete="name">
                 @error('name')
                     <div class="auth-error">{{ $message }}</div>
                 @enderror

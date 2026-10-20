@@ -23,7 +23,7 @@
                     <div class="row gy-4">
                         <div class="col-md-6">
                             <label for="nom">Nom</label>
-                            <input id="nom" class="form-control @error('nom') is-invalid @enderror" name="nom" value="{{ old('nom', $equipement->nom ?? '') }}" required autofocus>
+                            <input id="nom" class="form-control @error('nom') is-invalid @enderror" name="nom" value="{{ old('nom', $equipement->nom ?? '') }}" required>
                             @error('nom')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">

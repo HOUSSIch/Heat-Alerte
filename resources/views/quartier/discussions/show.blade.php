@@ -17,7 +17,7 @@
                     <form method="POST" action="{{ route('discussions-quartier.confirmation', $publication) }}">@csrf<button class="discussion-action" type="submit"><i class="bi bi-people"></i> Moi aussi</button></form>
                     <span class="discussion-counts"><i class="bi bi-people"></i> {{ $publication->confirmations_count }} habitant(s) concerné(s)</span>
                     @if ($publication->user_id === auth()->id())
-                        <form method="POST" action="{{ route('discussions-quartier.status', $publication) }}" class="discussion-status-form">@csrf @method('PATCH')<select class="discussion-select" name="statut">@foreach (['signale' => 'Signalé', 'en_cours' => 'En cours', 'resolu' => 'Résolu'] as $value => $label)<option value="{{ $value }}" @selected($publication->statut === $value)>{{ $label }}</option>@endforeach</select><button class="discussion-action discussion-action--secondary" type="submit"><i class="bi bi-arrow-repeat"></i> Mettre à jour</button></form>
+                        <form method="POST" action="{{ route('discussions-quartier.status', $publication) }}" class="discussion-status-form">@csrf @method('PATCH')<label class="visually-hidden" for="statut">Statut</label><select id="statut" class="discussion-select" name="statut">@foreach (['signale' => 'Signalé', 'en_cours' => 'En cours', 'resolu' => 'Résolu'] as $value => $label)<option value="{{ $value }}" @selected($publication->statut === $value)>{{ $label }}</option>@endforeach</select><button class="discussion-action discussion-action--secondary" type="submit"><i class="bi bi-arrow-repeat"></i> Mettre à jour</button></form>
                     @endif
                 </div>
             </article>

@@ -37,7 +37,7 @@ class NominatimService
 
     public function geocode(string $address): ?array
     {
-        return Cache::remember('nominatim:'.sha1($address), now()->addMinutes(30), function () use ($address) {
+        return Cache::remember('nominatim:'.hash('sha256', $address), now()->addMinutes(30), function () use ($address) {
             try {
                 $r = Http::timeout(8)
                     ->withHeaders(['User-Agent' => 'HeatAlert/1.0'])

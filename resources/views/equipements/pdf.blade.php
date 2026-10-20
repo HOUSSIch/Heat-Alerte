@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="utf-8">
+    <title>Fiche équipement — {{ $reference }}</title>
     <style>
         @page { margin: 28px 32px; }
         body { color: #1d2939; font-family: DejaVu Sans, sans-serif; font-size: 10px; line-height: 1.5; }

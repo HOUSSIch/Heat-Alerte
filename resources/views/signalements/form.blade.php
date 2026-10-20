@@ -18,7 +18,7 @@
 
                         <div class="row gy-4">
                             <div class="col-12">
-                                <label class="form-label">Quartier</label>
+                                <label class="form-label" for="quartier_id">Quartier</label>
                                 <select id="quartier_id" class="form-select @error('quartier_id') is-invalid @enderror" name="quartier_id">
                                     @foreach ($quartiers as $quartier)
                                         <option value="{{ $quartier->id }}" @selected(old('quartier_id', $signalement->quartier_id) == $quartier->id)>
@@ -32,7 +32,7 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Titre</label>
+                                <label class="form-label" for="titre">Titre</label>
                                 <input id="titre" class="form-control @error('titre') is-invalid @enderror" name="titre" value="{{ old('titre') }}" required>
                                 @error('titre')
                                     <div class="text-danger">{{ $message }}</div>
@@ -40,7 +40,7 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Description</label>
+                                <label class="form-label" for="description">Description</label>
                                 <textarea id="description" class="form-control @error('description') is-invalid @enderror" name="description" rows="5" required>{{ old('description') }}</textarea>
                                 @error('description')
                                     <div class="text-danger">{{ $message }}</div>
@@ -48,7 +48,7 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Adresse</label>
+                                <label class="form-label" for="adresse">Adresse</label>
                                 <input id="adresse" list="adresse-results" class="form-control @error('adresse') is-invalid @enderror" name="adresse" value="{{ old('adresse') }}" placeholder="Ex. Bardo, Tunis">
                                 <datalist id="adresse-results"></datalist>
                                 <p id="address-help" class="mt-2 mb-0">La localisation sera recherchée automatiquement avec OpenStreetMap.</p>
@@ -68,6 +68,7 @@
                             <i class="bi bi-stars"></i>
                             <h4>Assistant IA</h4>
                             <p>Décrivez librement votre problème : l’assistant propose des champs que vous pourrez vérifier avant l’envoi.</p>
+                            <label class="visually-hidden" for="assistant-text">Description destinée à l’assistant IA</label>
                             <textarea id="assistant-text" class="form-control mb-2" rows="5" placeholder="Plus de courant depuis deux heures..."></textarea>
                             <button id="assistant-fill" class="btn-main" type="button">Remplir avec l’IA</button>
                             <p id="assistant-feedback" class="mt-2 mb-0" aria-live="polite"></p>

@@ -14,7 +14,7 @@
             <div class="auth-form-group">
                 <label class="auth-label" for="email">Adresse e-mail</label>
                 <input class="auth-input @error('email') is-invalid @enderror" id="email" type="email" name="email"
-                    value="{{ old('email', $request->email) }}" required autofocus autocomplete="username">
+                    value="{{ old('email', $request->email) }}" required autocomplete="username">
                 @error('email')
                     <div class="auth-error">{{ $message }}</div>
                 @enderror

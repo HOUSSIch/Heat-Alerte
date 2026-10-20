@@ -6,6 +6,14 @@
     </div>
     <div class="table-responsive">
         <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Titre</th>
+                    <th scope="col">Quartier</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
             <tbody>
                 @foreach ($coupures as $c)
                     <tr>

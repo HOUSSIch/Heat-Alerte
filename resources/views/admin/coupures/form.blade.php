@@ -12,7 +12,8 @@
 
         <div class="card">
             <div class="card-body">
-                <select class="form-select mb-2 @error('quartier_id') is-invalid @enderror" name="quartier_id" required>
+                <label class="form-label" for="quartier_id">Quartier</label>
+                <select id="quartier_id" class="form-select mb-2 @error('quartier_id') is-invalid @enderror" name="quartier_id" required>
                     <option value="">Sélectionnez un quartier</option>
                     @foreach ($quartiers as $quartier)
                         <option value="{{ $quartier->id }}" @selected(old('quartier_id', $coupure->quartier_id) == $quartier->id)>{{ $quartier->nom }}</option>
@@ -22,13 +23,15 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
 
-                <input class="form-control mb-2" name="titre" value="{{ old('titre', $coupure->titre) }}"
+                <label class="form-label" for="titre">Titre</label>
+                <input id="titre" class="form-control mb-2" name="titre" value="{{ old('titre', $coupure->titre) }}"
                     placeholder="Titre" required>
                 @error('titre')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
 
-                <select class="form-select mb-2" name="type" required>
+                <label class="form-label" for="type">Type</label>
+                <select id="type" class="form-select mb-2" name="type" required>
                     @foreach (['panne', 'maintenance', 'délestage'] as $type)
                         <option value="{{ $type }}" @selected(old('type', $coupure->type) === $type)>{{ ucfirst($type) }}</option>
                     @endforeach
@@ -37,7 +40,8 @@
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
 
-                <select class="form-select mb-2" name="statut" required>
+                <label class="form-label" for="statut">Statut</label>
+                <select id="statut" class="form-select mb-2" name="statut" required>
                     @foreach (['prévue', 'en_cours', 'terminée'] as $statut)
                         <option value="{{ $statut }}" @selected(old('statut', $coupure->statut) === $statut)>
                             {{ str_replace('_', ' ', ucfirst($statut)) }}</option>
@@ -47,7 +51,8 @@
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
 
-                <textarea class="form-control mb-2" name="description" placeholder="Description">{{ old('description', $coupure->description) }}</textarea>
+                <label class="form-label" for="description">Description</label>
+                <textarea id="description" class="form-control mb-2" name="description" placeholder="Description">{{ old('description', $coupure->description) }}</textarea>
                 @error('description')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror

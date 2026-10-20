@@ -69,6 +69,7 @@
             <form method="POST" action="{{ route('chatbot.send') }}">
                 @csrf
                 <div class="input-group">
+                    <label class="visually-hidden" for="assistant-question">Votre question</label>
                     <input id="assistant-question" class="form-control" name="question" maxlength="2000"
                         placeholder="Écrivez votre question..." required>
                     <button class="btn btn-primary" type="submit" aria-label="Envoyer la question">

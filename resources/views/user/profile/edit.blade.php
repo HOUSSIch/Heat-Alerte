@@ -150,13 +150,15 @@
                                 <div class="profile-two-factor-actions">
                                     <form action="{{ route('two-factor.recovery-codes') }}" method="POST" class="profile-inline-form">
                                         @csrf
-                                        <input class="form-control profile-form-control" name="current_password" type="password" placeholder="Mot de passe actuel" required autocomplete="current-password">
+                                        <label class="visually-hidden" for="recovery-codes-current-password">Mot de passe actuel</label>
+                                        <input id="recovery-codes-current-password" class="form-control profile-form-control" name="current_password" type="password" placeholder="Mot de passe actuel" required autocomplete="current-password">
                                         <button class="profile-secondary-button" type="submit">Régénérer les codes</button>
                                     </form>
                                     <form action="{{ route('two-factor.disable') }}" method="POST" class="profile-inline-form" onsubmit="return confirm('Désactiver l’authentification à deux facteurs ?')">
                                         @csrf
                                         @method('DELETE')
-                                        <input class="form-control profile-form-control" name="current_password" type="password" placeholder="Mot de passe actuel" required autocomplete="current-password">
+                                        <label class="visually-hidden" for="disable-two-factor-current-password">Mot de passe actuel</label>
+                                        <input id="disable-two-factor-current-password" class="form-control profile-form-control" name="current_password" type="password" placeholder="Mot de passe actuel" required autocomplete="current-password">
                                         <button class="profile-danger-button" type="submit">Désactiver la 2FA</button>
                                     </form>
                                 </div>

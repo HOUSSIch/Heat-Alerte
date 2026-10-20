@@ -30,7 +30,7 @@ class GroqAiService
                 fn ($commentaire) => ['contenu' => $commentaire->contenu],
             )->all(),
         ];
-        $key = 'groq:discussion:'.sha1(json_encode($payload, JSON_UNESCAPED_UNICODE));
+        $key = 'groq:discussion:'.hash('sha256', (string) json_encode($payload, JSON_UNESCAPED_UNICODE));
 
         return Cache::remember($key, now()->addHour(), function () use ($payload, $publication): array {
             $data = $this->requestJson(
@@ -61,7 +61,7 @@ class GroqAiService
             throw new \RuntimeException('Aucun avis à analyser.');
         }
 
-        $key = 'groq:avis:'.$pointId.':'.sha1(json_encode($items));
+        $key = 'groq:avis:'.$pointId.':'.hash('sha256', (string) json_encode($items));
 
         return Cache::remember($key, now()->addHour(), function () use ($items, $pointId): array {
             Log::info('Groq analysis started', [
@@ -193,7 +193,7 @@ PROMPT;
             throw new \RuntimeException($unavailableMessage);
         }
 
-        $json = trim(preg_replace('/^\x60{3}(?:json)?\s*|\s*\x60{3}$/', '', trim($content)) ?? '');
+        $json = trim(preg_replace('/^(?:\x60{3}(?:json)?\s*)|(?:\s*\x60{3})$/', '', trim($content)) ?? '');
         $start = strpos($json, '{');
         $end = strrpos($json, '}');
 

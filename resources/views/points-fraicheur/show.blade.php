@@ -76,14 +76,14 @@
                                 @if ($monAvis)
                                     @method('PUT')
                                 @endif
-                                <label class="form-label">Note</label>
-                                <select class="form-select" name="note" required>
+                                <label class="form-label" for="avis-note">Note</label>
+                                <select id="avis-note" class="form-select" name="note" required>
                                     @for ($note = 1; $note <= 5; $note++)
                                         <option value="{{ $note }}" @selected(old('note', $monAvis?->note) == $note)>{{ $note }}/5</option>
                                     @endfor
                                 </select>
-                                <label class="form-label mt-3">Commentaire</label>
-                                <textarea class="form-control" name="commentaire" rows="4">{{ old('commentaire', $monAvis?->commentaire) }}</textarea>
+                                <label class="form-label mt-3" for="avis-commentaire">Commentaire</label>
+                                <textarea id="avis-commentaire" class="form-control" name="commentaire" rows="4">{{ old('commentaire', $monAvis?->commentaire) }}</textarea>
                                 <button class="btn-main mt-3" type="submit">{{ $monAvis ? 'Mettre à jour' : 'Envoyer mon avis' }}</button>
                             </form>
                             @if ($monAvis)
@@ -100,8 +100,8 @@
         </div>
     </section>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
     <script>
         const pointMap = L.map('point-fraicheur-map').setView([{{ $pointFraicheur->latitude }}, {{ $pointFraicheur->longitude }}], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
