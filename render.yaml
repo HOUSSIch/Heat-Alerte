@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: heat-alerte
+    runtime: docker
+    plan: free
+    branch: main
+    healthCheckPath: /up
+    autoDeployTrigger: commit
+    preDeployCommand: php artisan migrate --force
