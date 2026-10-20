@@ -69,9 +69,10 @@ jobs asynchrones et les dépendances de session/cache externes.
 Les appels HTTP et notifications des tests sont simulés avec les fakes Laravel existants ; aucune
 clé Open-Meteo, Nominatim, Geoapify, Gemini, Groq ou SMTP n’est nécessaire au CI.
 
-La vérification Sonar est volontairement ignorée tant que son projet n’est pas configuré. Dès que
-les trois paramètres ci-dessous existent, le scanner attend le Quality Gate et fait échouer le
-workflow si celui-ci est rouge.
+SonarQube Cloud est configuré pour HeatAlert : le scanner importe `coverage.xml`, attend le
+Quality Gate et fait échouer le workflow si celui-ci est rouge. La PR DevOps a validé le Quality
+Gate avec une note A en sécurité, fiabilité et maintenabilité, 80,4 % de couverture du nouveau
+code et 0,8 % de duplication.
 
 ### Secrets et variables GitHub à créer
 
@@ -84,6 +85,22 @@ Créer dans **Settings → Secrets and variables → Actions** :
 | Variable | `SONAR_ORGANIZATION` | Organisation SonarQube Cloud |
 
 Ne pas créer de fausse valeur et ne pas écrire ces valeurs dans un fichier du dépôt.
+
+### Rotation des secrets
+
+Si un secret a été exposé dans un environnement partagé, le propriétaire du compte doit le
+renouveler dans son fournisseur puis mettre à jour uniquement les variables locales ou Railway :
+
+- Gmail App Password ;
+- Gemini API Key ;
+- Groq API Key ;
+- Geoapify API Key ;
+- l’ancienne `APP_KEY` si elle a servi en production ou dans un environnement partagé ;
+- tout autre identifiant réellement exposé.
+
+Ne jamais générer, afficher ou versionner ces valeurs. La clé de production doit être distincte de
+la clé locale et créée avec `php artisan key:generate --show`, puis enregistrée seulement dans les
+variables Railway.
 
 Dans GitHub, protéger `main` en exigeant les checks **Build, tests and static analysis** et
 **SonarQube Cloud Quality Gate** après le premier passage Sonar. SonarQube Cloud publie aussi son
