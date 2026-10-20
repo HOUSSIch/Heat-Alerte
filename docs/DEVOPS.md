@@ -182,3 +182,43 @@ fichiers n’est créé automatiquement par cette préparation.
 - **Pint/Larastan rouge** : corriger le code signalé, sans ajouter une baseline globale pour masquer la dette.
 - **Déploiement Railway bloqué** : vérifier que Wait for CI est activé, que la branche est `main`,
   que le health check `/up` répond et que les variables Railway sont définies.
+
+## Render + TiDB Cloud
+
+Le déploiement de démonstration est défini par `Dockerfile` et `render.yaml`. Le conteneur utilise
+PHP 8.2 CLI, Composer 2 et Node 22 : il installe les extensions `pdo_mysql`, `mbstring`, `bcmath`,
+`intl` et `opcache`, exécute `npm ci`, `npm run build` puis
+`composer install --no-dev --optimize-autoloader`. Il démarre ensuite Laravel avec :
+
+```text
+php artisan serve --host=0.0.0.0 --port=$PORT
+```
+
+Cette solution est volontairement simple et adaptée au service Render Free ; elle ne rajoute pas de
+serveur Nginx ou Apache pour la soutenance. Render doit utiliser le runtime **Docker**, la branche
+`main`, le plan **Free**, la région **Ohio (US East)** et le health check `/up`.
+
+Avant de cliquer sur Deploy, saisir manuellement dans Render les variables suivantes, sans jamais
+commiter ni transmettre leurs valeurs :
+
+| Groupe | Variables |
+| --- | --- |
+| Application | `APP_NAME=HeatAlert`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `APP_URL` |
+| Logs | `LOG_CHANNEL=stderr`, `LOG_LEVEL=error` |
+| TiDB Cloud | `DB_CONNECTION=mysql`, `DB_HOST`, `DB_PORT=4000`, `DB_DATABASE=heat_alert`, `DB_USERNAME`, `DB_PASSWORD`, `MYSQL_ATTR_SSL_CA=/etc/ssl/certs/ca-certificates.crt` |
+| Sessions et tâches | `SESSION_DRIVER=database`, `CACHE_STORE=database`, `QUEUE_CONNECTION=database`, `SESSION_SECURE_COOKIE=true` |
+| E-mail | `MAIL_MAILER=smtp`, `MAIL_HOST=smtp.gmail.com`, `MAIL_PORT=587`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION=tls`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME=HeatAlert` |
+| Services | `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-2.5-flash`, `GROQ_API_KEY`, `GROQ_MODEL=openai/gpt-oss-20b`, `GEOAPIFY_API_KEY` |
+
+`MYSQL_ATTR_SSL_CA` utilise le magasin de certificats Linux installé avec le paquet
+`ca-certificates`; aucun chemin Windows ne doit être configuré. `render.yaml` exécute uniquement
+`php artisan migrate --force` avant le déploiement : aucun seeder, `migrate:fresh`, `db:wipe` ou
+reset de migration n'est utilisé.
+
+Créer une nouvelle clé avec `php artisan key:generate --show` sur une machine sûre puis la saisir
+directement dans Render. Ne jamais réutiliser une clé publique ou locale.
+
+Le disque du plan Render Free est éphémère. Les fichiers envoyés via le disque `public` peuvent être
+perdus lors d'un redéploiement ; cette préparation crée le lien `public/storage`, mais ne migre pas
+automatiquement les fichiers vers S3 ou Cloudinary. Un volume ou un stockage objet devra être choisi
+explicitement avant un usage durable.
