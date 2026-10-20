@@ -21,16 +21,16 @@ class AuthenticationTest extends TestCase
             ->get('/dashboard')
             ->assertOk()
             ->assertSee('Température actuelle')
-            ->assertSee('Alerte canicule')
-            ->assertSee('Dashboard')
-            ->assertSee('Alertes météo')
+            ->assertSee('Restez informé, restez protégé.')
+            ->assertSee('Météo et alertes')
             ->assertSee('Coupures électriques')
             ->assertSee('Points de fraîcheur')
+            ->assertSee('Structures d’assistance')
             ->assertSee('Mes équipements')
             ->assertSee('Mes conseils')
             ->assertSee('Assistant HeatAlert')
             ->assertSee('Profil')
-            ->assertSee('navbar-collapse', false);
+            ->assertSee('navmenu', false);
     }
 
     public function test_registration_creates_a_habitant_and_authenticates_them(): void
@@ -42,7 +42,7 @@ class AuthenticationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/verify-email');
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'amina@example.test', 'role' => 'habitant']);
     }
@@ -62,6 +62,37 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_admin_login_redirects_to_the_admin_dashboard(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@example.test',
+            'role' => 'admin',
+        ]);
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect('/admin/dashboard');
+
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_registration_cannot_assign_the_admin_role(): void
+    {
+        $this->post('/register', [
+            'name' => 'Compte public',
+            'email' => 'public@example.test',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'admin',
+        ])->assertRedirect('/verify-email');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'public@example.test',
+            'role' => 'habitant',
+        ]);
+    }
+
     public function test_profile_pages_are_protected_and_show_the_authenticated_user(): void
     {
         $this->get('/profile')->assertRedirect('/login');
@@ -74,7 +105,7 @@ class AuthenticationTest extends TestCase
             ->assertOk()
             ->assertSee('Sami Heat')
             ->assertSee($user->email)
-            ->assertSee('habitant');
+            ->assertSee('Habitant');
 
         $this->actingAs($user)
             ->get('/profile/edit')
@@ -94,6 +125,7 @@ class AuthenticationTest extends TestCase
                 'email' => 'nouveau@example.test',
                 'password' => 'nouveau-mot-de-passe',
                 'password_confirmation' => 'nouveau-mot-de-passe',
+                'current_password' => 'password',
                 'role' => 'admin',
                 'id' => $otherUser->id,
             ])
@@ -114,7 +146,7 @@ class AuthenticationTest extends TestCase
         $otherUser = User::factory()->create();
 
         $this->actingAs($user)
-            ->delete('/profile')
+            ->delete('/profile', ['password' => 'password'])
             ->assertRedirect('/register');
 
         $this->assertGuest();

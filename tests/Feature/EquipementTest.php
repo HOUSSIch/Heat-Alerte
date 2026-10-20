@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Equipement;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -83,6 +82,6 @@ class EquipementTest extends TestCase
         $user = User::factory()->create();
         $user->equipements()->create(['nom' => 'Climatiseur', 'type' => 'Climatisation', 'sensible_chaleur' => true, 'sensible_coupure' => false]);
 
-        $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('Mes équipements')->assertSee('>1<', false);
+        $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('Mes équipements')->assertSee('1 équipement suivi');
     }
 }

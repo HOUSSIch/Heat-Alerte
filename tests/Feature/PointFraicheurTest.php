@@ -123,10 +123,10 @@ class PointFraicheurTest extends TestCase
 
     public function test_new_module_views_keep_blade_inheritance_and_real_sidebar_routes(): void
     {
-        $this->assertStringContainsString("@extends('layouts.user')", file_get_contents(resource_path('views/points-fraicheur/index.blade.php')));
-        $this->assertStringContainsString("@extends('layouts.admin')", file_get_contents(resource_path('views/admin/points-fraicheur/index.blade.php')));
-        $this->assertStringContainsString("route('points-fraicheur.index')", file_get_contents(resource_path('views/partials/user-sidebar.blade.php')));
-        $this->assertStringContainsString("route('admin.points-fraicheur.index')", file_get_contents(resource_path('views/partials/admin-sidebar.blade.php')));
+        $this->assertStringContainsString("@extends('layouts.front')", file_get_contents(resource_path('views/points-fraicheur/index.blade.php')));
+        $this->assertStringContainsString("@extends('admin.layouts.gentelella')", file_get_contents(resource_path('views/admin/points-fraicheur/index.blade.php')));
+        $this->assertStringContainsString("route('points-fraicheur.index')", file_get_contents(resource_path('views/layouts/front.blade.php')));
+        $this->assertStringContainsString("route('admin.points-fraicheur.index')", file_get_contents(resource_path('views/admin/layouts/gentelella.blade.php')));
     }
 
     private function quartier(string $nom): Quartier
