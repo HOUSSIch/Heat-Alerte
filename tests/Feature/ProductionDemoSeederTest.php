@@ -4,9 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\AlerteMeteo;
 use App\Models\Avis;
+use App\Models\CommentairePublication;
+use App\Models\Conseil;
 use App\Models\CoupureElectrique;
 use App\Models\Equipement;
 use App\Models\PointFraicheur;
+use App\Models\PublicationQuartier;
 use App\Models\Quartier;
 use App\Models\Signalement;
 use App\Models\User;
@@ -48,5 +51,16 @@ class ProductionDemoSeederTest extends TestCase
         $this->assertGreaterThanOrEqual(30, Avis::count());
         $this->assertGreaterThanOrEqual(20, Equipement::count());
         $this->assertSame(1, User::where('email', $adminEmail)->count());
+
+        $primaryHabitant = User::where('email', 'habitant-demo-1@heatalert.demo')->firstOrFail();
+        $primaryEquipementIds = Equipement::where('user_id', $primaryHabitant->id)->pluck('id');
+
+        $this->assertGreaterThanOrEqual(6, $primaryEquipementIds->count());
+        $this->assertGreaterThanOrEqual(10, Conseil::whereHas('equipements', fn ($query) => $query->whereIn('equipements.id', $primaryEquipementIds))->count());
+        $this->assertGreaterThanOrEqual(7, Signalement::where('user_id', $primaryHabitant->id)->count());
+        $this->assertGreaterThanOrEqual(6, Avis::where('user_id', $primaryHabitant->id)->count());
+        $this->assertGreaterThanOrEqual(3, PublicationQuartier::where('user_id', $primaryHabitant->id)->count());
+        $this->assertGreaterThanOrEqual(3, CommentairePublication::where('user_id', $primaryHabitant->id)->count());
+        $this->assertGreaterThanOrEqual(3, $primaryHabitant->confirmationsPublication()->count());
     }
 }
