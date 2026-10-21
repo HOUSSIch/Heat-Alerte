@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -36,8 +37,14 @@ class PasswordResetLinkController extends Controller
         // need to show to the user. Finally, we'll send out a proper response.
         try {
             Password::sendResetLink($request->only('email'));
-        } catch (TransportExceptionInterface) {
-            return back()->withInput($request->only('email'))
+        } catch (TransportExceptionInterface $exception) {
+            Log::error('SMTP password reset failure', [
+                'exception' => $exception::class,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return back()
+                ->withInput($request->only('email'))
                 ->with('error', 'Le lien de réinitialisation n’a pas pu être envoyé pour le moment. Vérifiez la configuration SMTP, puis réessayez.');
         }
 
