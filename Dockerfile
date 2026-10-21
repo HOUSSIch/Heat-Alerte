@@ -22,6 +22,7 @@ RUN apt-get update \
         ca-certificates \
         git \
         libicu-dev \
+        libonig-dev \
         libzip-dev \
         unzip \
     && docker-php-ext-install -j"$(nproc)" \
