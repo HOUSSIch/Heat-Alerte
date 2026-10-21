@@ -42,6 +42,7 @@ class ProductionDemoSeeder extends Seeder
             $this->seedAvis($users, $points);
             $this->seedEtablissementsSensibles($quartiers);
             $this->seedPublications($users, $quartiers);
+            $this->seedPrimaryHabitantScenario($users, $quartiers['manzah_1']);
         });
     }
 
@@ -172,7 +173,7 @@ class ProductionDemoSeeder extends Seeder
         $definitions = [
             ['Climatiseur salon', 'Climatisation', 'LG', true, true],
             ['Réfrigérateur familial', 'Électroménager', 'Samsung', true, true],
-            ['Ordinateur portable', 'Informatique', 'Lenovo', true, true],
+            ['PC portable', 'Informatique', 'Lenovo', true, true],
             ['Ventilateur sur pied', 'Ventilation', 'Moulinex', true, false],
             ['Congélateur', 'Électroménager', 'Beko', true, true],
             ['Téléviseur principal', 'Électronique', 'Hisense', false, true],
@@ -193,9 +194,19 @@ class ProductionDemoSeeder extends Seeder
         ];
 
         $equipements = [];
+        $primaryHabitantEquipmentNames = [
+            'Climatiseur salon',
+            'Réfrigérateur familial',
+            'PC portable',
+            'Ventilateur sur pied',
+            'Box internet',
+            'Batterie de secours',
+        ];
 
         foreach ($definitions as $index => [$nom, $type, $marque, $sensibleChaleur, $sensibleCoupure]) {
-            $owner = $users['habitant_'.(($index % 20) + 1)];
+            $owner = in_array($nom, $primaryHabitantEquipmentNames, true)
+                ? $users['habitant_1']
+                : $users['habitant_'.(($index % 20) + 1)];
             $equipements[] = Equipement::updateOrCreate(
                 ['user_id' => $owner->id, 'nom' => $nom],
                 [
@@ -535,6 +546,135 @@ class ProductionDemoSeeder extends Seeder
                 $users['habitant_'.(($index % 24) + 1)]->id,
                 $users['habitant_'.((($index + 5) % 24) + 1)]->id,
             ]);
+        }
+    }
+
+    /**
+     * Guarantees a complete, coherent scenario for habitant-demo-1@heatalert.demo.
+     *
+     * @param  array<string, User>  $users
+     */
+    private function seedPrimaryHabitantScenario(array $users, Quartier $quartier): void
+    {
+        $primaryHabitant = $users['habitant_1'];
+        $equipements = Equipement::query()
+            ->where('user_id', $primaryHabitant->id)
+            ->orderBy('id')
+            ->get();
+
+        $conseilTitles = [
+            'Préparer le climatiseur avant une canicule',
+            'Nettoyer les filtres avant l’été',
+            'Fermer les volets aux heures chaudes',
+            'Conserver le froid du réfrigérateur',
+            'Débrancher les appareils sensibles',
+            'Utiliser un parasurtenseur',
+            'Sauvegarder son travail régulièrement',
+            'Prévoir une solution de secours internet',
+            'Préserver la batterie de secours',
+            'Anticiper une maintenance annuelle',
+        ];
+
+        foreach ($conseilTitles as $index => $title) {
+            $conseil = Conseil::where('titre', $title)->firstOrFail();
+            $conseil->equipements()->syncWithoutDetaching([$equipements[$index % $equipements->count()]->id]);
+        }
+
+        $coupures = CoupureElectrique::query()
+            ->where('quartier_id', $quartier->id)
+            ->orderBy('id')
+            ->get();
+
+        foreach ([
+            ['Coupure constatée dans mon immeuble', 'en_attente', 'Le courant est instable depuis ce matin dans notre immeuble.'],
+            ['Réfrigérateur à protéger pendant la coupure', 'validé', 'Je demande une vérification car la coupure met les aliments au frais en danger.'],
+            ['Électricité rétablie dans la résidence', 'résolu', 'Le courant est revenu après intervention, la situation est maintenant résolue.'],
+            ['Signalement doublon à vérifier', 'rejeté', 'Cette information a finalement été confirmée comme un doublon.'],
+            ['Panne encore active près du centre municipal', 'en_attente', 'Plusieurs voisins signalent que la panne est toujours active.'],
+        ] as $index => [$titre, $statut, $description]) {
+            $coupure = $coupures[$index % $coupures->count()];
+
+            Signalement::updateOrCreate(
+                ['user_id' => $primaryHabitant->id, 'titre' => $titre],
+                [
+                    'coupure_electrique_id' => $coupure->id,
+                    'quartier_id' => $quartier->id,
+                    'description' => $description,
+                    'adresse' => "{$quartier->nom}, {$quartier->ville}",
+                    'latitude' => $quartier->latitude,
+                    'longitude' => $quartier->longitude,
+                    'statut' => $statut,
+                    'date_signalement' => now()->subHours($index + 1),
+                ],
+            );
+        }
+
+        foreach ([
+            ['Centre municipal Manzah 1', 5, 'Espace bien climatisé et très utile pendant les fortes chaleurs.'],
+            ['Bibliothèque El Menzah', 4, 'Lieu calme, accessible et agréable pour travailler au frais.'],
+            ['Maison de jeunes El Menzah 4', 4, 'Personnel accueillant et espaces propres.'],
+            ['Parc du Bardo', 3, 'L’ombre est appréciable mais il y avait beaucoup de monde.'],
+            ['Maison de la culture La Marsa', 5, 'Très bon accueil et informations claires sur les services disponibles.'],
+            ['Espace citoyen Lac 1', 4, 'Point de fraîcheur pratique et bien indiqué.'],
+        ] as [$pointName, $note, $commentaire]) {
+            $point = PointFraicheur::where('nom', $pointName)->firstOrFail();
+
+            Avis::updateOrCreate(
+                ['user_id' => $primaryHabitant->id, 'point_fraicheur_id' => $point->id],
+                ['note' => $note, 'commentaire' => $commentaire, 'statut' => 'publie'],
+            );
+        }
+
+        $communityPublication = PublicationQuartier::updateOrCreate(
+            ['quartier_id' => $quartier->id, 'titre' => 'Permanence d’information à Manzah 1'],
+            [
+                'user_id' => $users['agent_1']->id,
+                'contenu' => 'Une permanence est disponible au centre municipal pour orienter les habitants pendant les fortes chaleurs.',
+                'type' => 'information',
+                'statut' => 'signale',
+                'resolved_at' => null,
+            ],
+        );
+
+        foreach ([
+            ['Besoin de conseils pour préserver les aliments', 'Je cherche des recommandations pour conserver les aliments pendant la coupure.', 'entraide', 'signale'],
+            ['Point de fraîcheur recommandé aux voisins', 'Le centre municipal est accessible et reste une bonne solution pour les personnes fragiles.', 'information', 'en_cours'],
+            ['Retour après la coupure électrique', 'Merci aux voisins et aux agents pour les informations partagées pendant la panne.', 'information', 'resolu'],
+        ] as $index => [$titre, $contenu, $type, $statut]) {
+            $publication = PublicationQuartier::updateOrCreate(
+                ['quartier_id' => $quartier->id, 'titre' => $titre],
+                [
+                    'user_id' => $primaryHabitant->id,
+                    'contenu' => $contenu,
+                    'type' => $type,
+                    'statut' => $statut,
+                    'resolved_at' => $statut === 'resolu' ? now()->subDay() : null,
+                ],
+            );
+
+            CommentairePublication::updateOrCreate(
+                ['publication_id' => $publication->id, 'user_id' => $users['habitant_'.($index + 2)]->id],
+                ['contenu' => 'Merci pour ce partage, cette information est utile au quartier.'],
+            );
+        }
+
+        $discussionTitles = [
+            'Information fraîcheur du jour',
+            'Panne d’ascenseur signalée',
+            $communityPublication->titre,
+        ];
+
+        foreach ($discussionTitles as $index => $title) {
+            $publication = PublicationQuartier::query()
+                ->where('quartier_id', $quartier->id)
+                ->where('titre', $title)
+                ->firstOrFail();
+
+            CommentairePublication::updateOrCreate(
+                ['publication_id' => $publication->id, 'user_id' => $primaryHabitant->id],
+                ['contenu' => 'Je confirme la situation et je reste disponible pour aider les voisins.'],
+            );
+            $publication->confirmations()->syncWithoutDetaching([$primaryHabitant->id]);
         }
     }
 }
