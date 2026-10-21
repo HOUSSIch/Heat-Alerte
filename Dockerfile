@@ -39,6 +39,12 @@ COPY . .
 COPY --from=frontend /var/www/html/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist \
+    && mkdir -p \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache
 
