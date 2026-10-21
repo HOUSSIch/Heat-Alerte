@@ -50,4 +50,4 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progre
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "php artisan storage:link --force && exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+CMD ["sh", "-c", "php artisan storage:link --force && php artisan migrate --force && exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
