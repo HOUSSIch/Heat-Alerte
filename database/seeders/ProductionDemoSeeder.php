@@ -22,6 +22,8 @@ use RuntimeException;
 
 class ProductionDemoSeeder extends Seeder
 {
+    private const LEGACY_PRIMARY_USER_EMAIL = 'habitant-demo-1@heatalert.demo';
+
     public function run(): void
     {
         $credentials = $this->demoCredentials();
@@ -47,7 +49,7 @@ class ProductionDemoSeeder extends Seeder
     }
 
     /**
-     * @return array{admin_email: string, admin_password: string, agent_password: string, user_password: string}
+     * @return array{admin_email: string, admin_password: string, agent_password: string, user_password: string, primary_user_email: string}
      */
     private function demoCredentials(): array
     {
@@ -56,6 +58,7 @@ class ProductionDemoSeeder extends Seeder
             'admin_password' => $this->requiredConfigurationValue('demo.admin_password', 'DEMO_ADMIN_PASSWORD'),
             'agent_password' => $this->requiredConfigurationValue('demo.agent_password', 'DEMO_AGENT_PASSWORD'),
             'user_password' => $this->requiredConfigurationValue('demo.user_password', 'DEMO_USER_PASSWORD'),
+            'primary_user_email' => $this->requiredConfigurationValue('demo.primary_user_email', 'DEMO_PRIMARY_USER_EMAIL'),
         ];
     }
 
@@ -105,7 +108,7 @@ class ProductionDemoSeeder extends Seeder
 
     /**
      * @param  array<string, Quartier>  $quartiers
-     * @param  array{admin_email: string, admin_password: string, agent_password: string, user_password: string}  $credentials
+     * @param  array{admin_email: string, admin_password: string, agent_password: string, user_password: string, primary_user_email: string}  $credentials
      * @return array<string, User>
      */
     private function seedUsers(array $quartiers, array $credentials): array
@@ -149,6 +152,17 @@ class ProductionDemoSeeder extends Seeder
 
         foreach ($inhabitants as $index => $name) {
             $key = 'habitant_'.($index + 1);
+
+            if ($index === 0) {
+                $users[$key] = $this->resolvePrimaryHabitant(
+                    $name,
+                    $quartiers[$quartierKeys[$index % count($quartierKeys)]],
+                    $credentials,
+                );
+
+                continue;
+            }
+
             $users[$key] = User::updateOrCreate(
                 ['email' => 'habitant-demo-'.($index + 1).'@heatalert.demo'],
                 [
@@ -162,6 +176,42 @@ class ProductionDemoSeeder extends Seeder
         }
 
         return $users;
+    }
+
+    /**
+     * Finds the configured primary user before migrating the historical account.
+     *
+     * @param  array{admin_email: string, admin_password: string, agent_password: string, user_password: string, primary_user_email: string}  $credentials
+     */
+    private function resolvePrimaryHabitant(string $name, Quartier $quartier, array $credentials): User
+    {
+        $primaryUser = User::query()
+            ->where('email', $credentials['primary_user_email'])
+            ->first();
+
+        if (! $primaryUser instanceof User) {
+            $primaryUser = User::query()
+                ->where('email', self::LEGACY_PRIMARY_USER_EMAIL)
+                ->first();
+        }
+
+        if ($primaryUser instanceof User) {
+            $primaryUser->forceFill([
+                'email' => $credentials['primary_user_email'],
+                'password' => Hash::make($credentials['user_password']),
+            ])->save();
+
+            return $primaryUser;
+        }
+
+        return User::create([
+            'name' => $name,
+            'email' => $credentials['primary_user_email'],
+            'password' => Hash::make($credentials['user_password']),
+            'role' => 'habitant',
+            'quartier_id' => $quartier->id,
+            'email_verified_at' => now(),
+        ]);
     }
 
     /**

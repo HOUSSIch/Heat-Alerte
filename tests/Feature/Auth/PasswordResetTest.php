@@ -35,7 +35,7 @@ class PasswordResetTest extends TestCase
         });
     }
 
-    public function test_smtp_failure_is_logged_without_changing_the_user_error_message(): void
+    public function test_mail_failure_is_logged_without_changing_the_user_error_message(): void
     {
         $email = 'habitant@example.test';
 
@@ -53,7 +53,7 @@ class PasswordResetTest extends TestCase
 
         Log::shouldHaveReceived('error')
             ->once()
-            ->with('SMTP password reset failure', [
+            ->with('Mail password reset failure', [
                 'exception' => TransportException::class,
                 'message' => 'SMTP authentication failed',
             ]);

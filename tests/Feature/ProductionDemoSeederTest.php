@@ -29,11 +29,13 @@ class ProductionDemoSeederTest extends TestCase
         $adminPassword = Str::random(32);
         $agentPassword = Str::random(32);
         $userPassword = Str::random(32);
+        $primaryUserEmail = 'primary-user-'.Str::lower(Str::random(12)).'@example.test';
 
         config()->set('demo.admin_email', $adminEmail);
         config()->set('demo.admin_password', $adminPassword);
         config()->set('demo.agent_password', $agentPassword);
         config()->set('demo.user_password', $userPassword);
+        config()->set('demo.primary_user_email', $primaryUserEmail);
 
         $this->seed(ProductionDemoSeeder::class);
         $this->seed(ProductionDemoSeeder::class);
@@ -52,7 +54,7 @@ class ProductionDemoSeederTest extends TestCase
         $this->assertGreaterThanOrEqual(20, Equipement::count());
         $this->assertSame(1, User::where('email', $adminEmail)->count());
 
-        $primaryHabitant = User::where('email', 'habitant-demo-1@heatalert.demo')->firstOrFail();
+        $primaryHabitant = User::where('email', $primaryUserEmail)->firstOrFail();
         $primaryEquipementIds = Equipement::where('user_id', $primaryHabitant->id)->pluck('id');
 
         $this->assertGreaterThanOrEqual(6, $primaryEquipementIds->count());
@@ -62,5 +64,54 @@ class ProductionDemoSeederTest extends TestCase
         $this->assertGreaterThanOrEqual(3, PublicationQuartier::where('user_id', $primaryHabitant->id)->count());
         $this->assertGreaterThanOrEqual(3, CommentairePublication::where('user_id', $primaryHabitant->id)->count());
         $this->assertGreaterThanOrEqual(3, $primaryHabitant->confirmationsPublication()->count());
+    }
+
+    public function test_primary_demo_user_email_migration_preserves_the_existing_user_and_relations(): void
+    {
+        $adminEmail = 'admin-'.Str::lower(Str::random(12)).'@example.test';
+        $adminPassword = Str::random(32);
+        $agentPassword = Str::random(32);
+        $userPassword = Str::random(32);
+        $legacyEmail = 'habitant-demo-1@heatalert.demo';
+        $primaryUserEmail = 'primary-user-'.Str::lower(Str::random(12)).'@example.test';
+
+        config()->set('demo.admin_email', $adminEmail);
+        config()->set('demo.admin_password', $adminPassword);
+        config()->set('demo.agent_password', $agentPassword);
+        config()->set('demo.user_password', $userPassword);
+        config()->set('demo.primary_user_email', $legacyEmail);
+
+        $this->seed(ProductionDemoSeeder::class);
+
+        $legacyUser = User::where('email', $legacyEmail)->firstOrFail();
+        $legacyUserId = $legacyUser->id;
+        $legacyUserName = $legacyUser->name;
+        $legacyUserRole = $legacyUser->role;
+        $legacyQuartierId = $legacyUser->quartier_id;
+        $legacyVerifiedAt = $legacyUser->email_verified_at;
+        $equipmentIds = Equipement::where('user_id', $legacyUserId)->pluck('id')->all();
+        $signalementCount = Signalement::where('user_id', $legacyUserId)->count();
+        $avisCount = Avis::where('user_id', $legacyUserId)->count();
+        $publicationCount = PublicationQuartier::where('user_id', $legacyUserId)->count();
+
+        config()->set('demo.primary_user_email', $primaryUserEmail);
+
+        $this->seed(ProductionDemoSeeder::class);
+        $this->seed(ProductionDemoSeeder::class);
+
+        $primaryUser = User::where('email', $primaryUserEmail)->firstOrFail();
+
+        $this->assertSame($legacyUserId, $primaryUser->id);
+        $this->assertSame($legacyUserName, $primaryUser->name);
+        $this->assertSame($legacyUserRole, $primaryUser->role);
+        $this->assertSame($legacyQuartierId, $primaryUser->quartier_id);
+        $this->assertTrue($primaryUser->email_verified_at->equalTo($legacyVerifiedAt));
+        $this->assertTrue(Hash::check($userPassword, $primaryUser->password));
+        $this->assertSame($equipmentIds, Equipement::where('user_id', $primaryUser->id)->pluck('id')->all());
+        $this->assertSame($signalementCount, Signalement::where('user_id', $primaryUser->id)->count());
+        $this->assertSame($avisCount, Avis::where('user_id', $primaryUser->id)->count());
+        $this->assertSame($publicationCount, PublicationQuartier::where('user_id', $primaryUser->id)->count());
+        $this->assertSame(0, User::where('email', $legacyEmail)->count());
+        $this->assertSame(1, User::where('email', $primaryUserEmail)->count());
     }
 }
