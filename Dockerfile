@@ -46,8 +46,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progre
         storage/logs \
         bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R ug+rwx storage bootstrap/cache
+    && chmod -R ug+rwx storage bootstrap/cache \
+    && chmod +x docker/start.sh
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "php artisan storage:link --force && php artisan migrate --force && exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+CMD ["./docker/start.sh"]
