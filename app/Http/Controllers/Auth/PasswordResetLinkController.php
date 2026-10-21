@@ -38,7 +38,7 @@ class PasswordResetLinkController extends Controller
         try {
             Password::sendResetLink($request->only('email'));
         } catch (TransportExceptionInterface $exception) {
-            Log::error('SMTP password reset failure', [
+            Log::error('Mail password reset failure', [
                 'exception' => $exception::class,
                 'message' => $exception->getMessage(),
             ]);
